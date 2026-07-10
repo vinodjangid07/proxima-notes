@@ -6,10 +6,12 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       setCurrentUser(user);
+      setLoading(false);
     });
 
     return unsubscribe;
@@ -18,7 +20,7 @@ export const AuthProvider = ({ children }) => {
   const logout = useCallback(() => {
     return signOut(auth);
   }, []);
-  const value = useMemo(() => ({ currentUser, logout }), [currentUser, logout]);
+  const value = useMemo(() => ({ currentUser, loading, logout }), [currentUser, loading, logout]);
   return (
     <AuthContext.Provider value={value}>
       {children}

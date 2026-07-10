@@ -1,35 +1,112 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import NoteCard from "../components/Notes/NoteCard";
+import { dbGetNotes, dbAddNote, dbUpdateNote, dbDeleteNote } from "../services/notesServices";
+import useAuth from "../context/useAuth";
+import { toast } from "react-toastify";
 
 const Notes = () => {
+    const { currentUser, loading } = useAuth();
     const [noteTitle, setNoteTitle] = useState('');
-    const [noteInput, setNoteInput] = useState('');
+    const [noteContent, setNoteContent] = useState('');
     const [noteList, setNoteList] = useState(() => {
         const savedNotes = localStorage.getItem('Notes List');
         return savedNotes ? JSON.parse(savedNotes) : [];
     });
 
+    const noteListRef = useRef(noteList);
+    noteListRef.current = noteList;
+
     const addNote = () => {
-        if (!noteInput.trim() && !noteTitle.trim()) {
+        if (!noteContent.trim() && !noteTitle.trim()) {
             return;
         }
         const randomId = crypto.randomUUID();
-        setNoteList((prevList) => [...prevList, { id: randomId, title: noteTitle, content: noteInput }]);
+        setNoteList((prevList) => [...prevList, { id: randomId, userId: currentUser?.uid || 'guest', title: noteTitle, content: noteContent }]);
+        if (currentUser) {
+            dbAddNote(randomId, currentUser.uid, noteTitle, noteContent).catch(err => console.error(err))
+        }
         setNoteTitle('');
-        setNoteInput('');
+        setNoteContent('');
+        toast.success("Note added!")
     }
 
     const editNote = useCallback((id, newTitle, newContent) => {
         setNoteList((prevList) => prevList.map((note) => note.id === id ? { ...note, title: newTitle, content: newContent } : note));
-    }, [])
+
+        if (currentUser) {
+            dbUpdateNote(id, newTitle, newContent).then(() => {
+                toast.success("Note updated!")
+            }).catch(err => {
+                toast.error("Failed to edit!");
+                console.error(err);
+            })
+        }
+        else{
+            toast.success("Note updated! (locally)");
+        }
+
+    }, [currentUser])
 
     const deleteNote = useCallback((id) => {
         setNoteList((prevList) => prevList.filter((note) => note.id !== id));
-    }, [])
+        if (currentUser) {
+            dbDeleteNote(id).then(() => {
+                toast.success("Note deleted!");
+            }).catch(err => {
+                toast.error("Failed to delete!");
+                console.error(err);
+            })
+        }
+        else {
+            toast.success("Note deleted! (locally)");
+        }
+
+    }, [currentUser])
 
     useEffect(() => {
         localStorage.setItem('Notes List', JSON.stringify(noteList));
     }, [noteList]);
+
+    useEffect(() => {
+        const clearNotesOnLogout = () => {
+            setNoteList([]);
+        };
+
+        window.addEventListener("local-logout", clearNotesOnLogout);
+        return () => window.removeEventListener("local-logout", clearNotesOnLogout);
+    }, []);
+
+    useEffect(() => {
+        if (loading) return;
+
+        const loadAndSyncNotes = async () => {
+            if (!currentUser || !navigator.onLine) {
+                return;
+            }
+
+            const currentNotes = noteListRef.current;
+            if (currentNotes.length > 0) {
+                const unsynced = currentNotes.filter((note) => note.userId !== currentUser.uid);
+                for (const note of unsynced) {
+                    await dbAddNote(note.id, currentUser.uid, note.title, note.content);
+                }
+            }
+            const serverNotes = await dbGetNotes(currentUser.uid);
+            setNoteList(serverNotes);
+        };
+
+        loadAndSyncNotes().catch(err => console.error("Sync/Fetch error:", err));
+
+        const handleOnline = () => {
+            loadAndSyncNotes().catch(err => console.error("Sync/Fetch error on online:", err));
+        };
+
+        window.addEventListener("online", handleOnline);
+        return () => window.removeEventListener("online", handleOnline);
+
+    }, [currentUser, loading]);
+
+
 
     return (
         <div className="min-h-screen bg-white dark:bg-zinc-950 px-8 py-16 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full">
@@ -52,8 +129,8 @@ const Notes = () => {
                             className="bg-transparent text-base font-semibold text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none w-full"
                         />
                         <textarea
-                            value={noteInput}
-                            onChange={(e) => setNoteInput(e.target.value)}
+                            value={noteContent}
+                            onChange={(e) => setNoteContent(e.target.value)}
                             placeholder="Take a note..."
                             rows={3}
                             className="bg-transparent text-sm text-zinc-700 dark:text-zinc-300 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none w-full resize-none min-h-[80px]"

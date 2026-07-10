@@ -10,8 +10,8 @@ const Home = () => {
 
   const handleLogin = () => {
     signInWithPopup(auth, provider)
-      .then((result) => {
-        console.log("Logged in user:", result.user);
+      .then(() => {
+        console.log("Logged In");
       })
       .catch((error) => {
         console.error("Login error:", error.message);

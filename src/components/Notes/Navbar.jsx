@@ -10,6 +10,12 @@ const Navbar = () => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
 
+  const handleLogout = () => {
+    logout();
+    localStorage.removeItem('Notes List');
+    window.dispatchEvent(new Event("local-logout"));
+  };
+
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -54,7 +60,7 @@ const Navbar = () => {
               Hello, {currentUser.displayName || currentUser.email?.split("@")[0]}
             </span>
             <button
-              onClick={logout}
+              onClick={handleLogout}
               className="text-sm font-medium text-red-500 hover:text-red-600 transition-colors cursor-pointer"
             >
               Log Out
@@ -117,7 +123,7 @@ const Navbar = () => {
               <button
                 onClick={() => {
                   setDropdownOpen(false);
-                  logout();
+                  handleLogout();
                 }}
                 className="flex items-center justify-between w-full px-3 py-2 text-xs font-medium text-red-500 hover:bg-zinc-100 dark:hover:bg-zinc-900 rounded-lg transition-colors text-left cursor-pointer"
               >
