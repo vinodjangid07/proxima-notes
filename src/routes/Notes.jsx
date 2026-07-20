@@ -14,7 +14,9 @@ const Notes = () => {
     });
 
     const noteListRef = useRef(noteList);
-    noteListRef.current = noteList;
+    useEffect(() => {
+        noteListRef.current = noteList;
+    }, [noteList]);
 
     const addNote = () => {
         if (!noteContent.trim() && !noteTitle.trim()) {
