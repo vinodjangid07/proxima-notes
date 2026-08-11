@@ -111,18 +111,18 @@ const Notes = () => {
 
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 px-8 py-16 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full">
-            <div className="flex flex-col gap-10 w-full max-w-5xl mx-auto">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 px-4 sm:px-8 py-8 sm:py-16 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full">
+            <div className="flex flex-col gap-8 sm:gap-10 w-full max-w-5xl mx-auto">
 
-                <div className="flex flex-col gap-8 w-full items-center">
+                <div className="flex flex-col gap-6 sm:gap-8 w-full items-center">
                     <div className="w-full flex justify-between items-center max-w-lg border-b border-zinc-200/50 dark:border-zinc-800/50 pb-4">
-                        <h1 className="text-2xl font-bold text-zinc-800 dark:text-zinc-100">Personal Workspace</h1>
+                        <h1 className="text-xl sm:text-2xl font-bold text-zinc-800 dark:text-zinc-100">Personal Workspace</h1>
                         <span className="text-xs text-zinc-400 dark:text-zinc-500 font-medium bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
                             {noteList.length} Notes
                         </span>
                     </div>
 
-                    <div className="bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl p-5 flex flex-col gap-3 w-full max-w-lg transition-all duration-200 shadow-sm focus-within:shadow-md focus-within:border-zinc-300 dark:focus-within:border-zinc-700">
+                    <div className="bg-zinc-50 dark:bg-zinc-900/30 border border-zinc-200 dark:border-zinc-800/80 rounded-2xl p-4 sm:p-5 flex flex-col gap-3 w-full max-w-lg transition-all duration-200 shadow-sm focus-within:shadow-md focus-within:border-zinc-300 dark:focus-within:border-zinc-700">
                         <input
                             type="text"
                             value={noteTitle}

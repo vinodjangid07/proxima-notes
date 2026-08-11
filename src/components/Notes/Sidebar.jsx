@@ -17,12 +17,12 @@ const Sidebar = () => {
 
     return (
         <aside 
-            className={`h-screen border-r border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/20 backdrop-blur-md flex flex-col justify-between p-3 sm:p-4 transition-all duration-300 ease-in-out ${
-                isCollapsed ? "w-16 sm:w-20" : "w-64"
+            className={`fixed bottom-0 left-0 right-0 h-16 w-full border-t border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/20 backdrop-blur-md flex flex-row justify-between items-center px-6 py-2 z-50 md:relative md:bottom-auto md:left-auto md:right-auto md:h-screen md:border-r md:border-t-0 md:flex-col md:items-start md:p-4 transition-all duration-300 ease-in-out ${
+                isCollapsed ? "md:w-16 sm:md:w-20" : "md:w-64"
             }`}
         >
-            <div className="flex flex-col gap-8">
-                <Link to="/" className="flex items-center gap-3 px-2 h-10 overflow-hidden hover:opacity-80 transition-opacity">
+            <div className="flex flex-row md:flex-col gap-4 md:gap-8 items-center md:items-start w-auto md:w-full">
+                <Link to="/" className="hidden md:flex items-center gap-3 px-2 h-10 overflow-hidden hover:opacity-80 transition-opacity w-full">
                     <img 
                       src="/proxima_logo.webp" 
                       alt="Proxima Logo" 
@@ -35,11 +35,11 @@ const Sidebar = () => {
                     )}
                 </Link>
 
-                <nav className="flex flex-col gap-2">
+                <nav className="flex flex-row md:flex-col gap-2 w-auto md:w-full">
                     <NavLink
                         to="/notes"
                         className={({ isActive }) =>
-                            `flex items-center gap-3 px-2 py-2 sm:px-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
+                            `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all w-auto md:w-full ${
                                 isActive
                                     ? "bg-zinc-200/60 dark:bg-zinc-800/60 text-zinc-950 dark:text-white"
                                     : "text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30"
@@ -47,16 +47,16 @@ const Sidebar = () => {
                         }
                     >
                         <BookOpen className="w-5 h-5 shrink-0" />
-                        {!isCollapsed && <span className="whitespace-nowrap">Notes</span>}
+                        {!isCollapsed && <span className="hidden md:inline whitespace-nowrap">Notes</span>}
                     </NavLink>
                 </nav>
             </div>
 
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-row md:flex-col gap-2 items-center md:items-start w-auto md:w-full">
                 {/* Theme Toggle */}
                 <button
                     onClick={toggleTheme}
-                    className="flex items-center gap-3 px-2 py-2 sm:px-3 sm:py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30 transition-all w-full cursor-pointer"
+                    className="flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30 transition-all w-auto md:w-full cursor-pointer"
                     title={resolvedTheme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
                 >
                     {resolvedTheme === "dark" ? (
@@ -65,7 +65,7 @@ const Sidebar = () => {
                         <Moon className="w-5 h-5 shrink-0 text-zinc-700" />
                     )}
                     {!isCollapsed && (
-                        <span className="whitespace-nowrap">
+                        <span className="hidden md:inline whitespace-nowrap">
                             {resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
                         </span>
                     )}
@@ -75,7 +75,7 @@ const Sidebar = () => {
                 <NavLink
                     to="/profile"
                     className={({ isActive }) =>
-                        `flex items-center gap-3 px-2 py-2 sm:px-3 sm:py-2.5 rounded-xl text-sm font-medium transition-all ${
+                        `flex items-center gap-3 px-3 py-2 rounded-xl text-sm font-medium transition-all w-auto md:w-full ${
                             isActive
                                 ? "bg-zinc-200/60 dark:bg-zinc-800/60 text-zinc-950 dark:text-white"
                                 : "text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30"
@@ -83,13 +83,13 @@ const Sidebar = () => {
                     }
                 >
                     <User className="w-5 h-5 shrink-0" />
-                    {!isCollapsed && <span className="whitespace-nowrap">Profile</span>}
+                    {!isCollapsed && <span className="hidden md:inline whitespace-nowrap">Profile</span>}
                 </NavLink>
 
                 {/* Collapse Toggle */}
                 <button
                     onClick={toggleCollapse}
-                    className="flex items-center gap-3 px-2 py-2 sm:px-3 sm:py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30 transition-all w-full cursor-pointer border-t border-zinc-200/50 dark:border-zinc-800/50 pt-4 mt-2"
+                    className="hidden md:flex items-center gap-3 px-2 py-2 sm:px-3 sm:py-2.5 rounded-xl text-sm font-medium text-zinc-500 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200/30 dark:hover:bg-zinc-800/30 transition-all w-auto md:w-full cursor-pointer border-t border-zinc-200/50 dark:border-zinc-800/50 pt-4 mt-2"
                 >
                     {isCollapsed ? (
                         <ChevronRight className="w-5 h-5 shrink-0" />
