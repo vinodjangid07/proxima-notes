@@ -1,10 +1,12 @@
 import { Trash2, Pencil, Check, X } from 'lucide-react';
 import { useState, memo } from 'react';
+import ConfirmCard from './ConfirmCard';
 
 const NoteCard = memo(({ note, editNote, deleteNote }) => {
     const [isEditing, setIsEditing] = useState(false);
     const [editTitle, setEditTitle] = useState(note.title);
     const [editContent, setEditContent] = useState(note.content || '');
+    const [confirmDelete, setConfirmDelete] = useState(false);
 
     const saveEdit = () => {
         if (!editTitle.trim() && !editContent.trim()) return;
@@ -19,7 +21,12 @@ const NoteCard = memo(({ note, editNote, deleteNote }) => {
     }
 
     return (
-        <div className="w-full flex flex-col justify-between border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/10 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/20 rounded-2xl p-5 min-h-[160px] transition-all duration-200 shadow-sm hover:shadow">
+        <div className="w-full flex flex-col justify-between border border-zinc-200 dark:border-zinc-800/80 bg-zinc-50/50 dark:bg-zinc-900/10 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/20 rounded-2xl p-5 min-h-[160px] transition-all duration-200 shadow-sm hover:shadow relative">
+            <ConfirmCard 
+            confirmDelete={confirmDelete} 
+            setConfirmDelete={setConfirmDelete} 
+            deleteNote={deleteNote}
+            noteId={note.id}/>
             {isEditing ? (
                 <div className="flex flex-col gap-2 w-full h-full flex-1">
                     <input 
@@ -81,7 +88,7 @@ const NoteCard = memo(({ note, editNote, deleteNote }) => {
                         </button>
                         <button
                             className="note-button hover:text-red-500 dark:hover:text-red-400 hover:bg-red-100/30 dark:hover:bg-red-950/20"
-                            onClick={() => deleteNote(note.id)}
+                            onClick={() => setConfirmDelete(true)}
                             title="Delete note"
                         >
                             <Trash2 className="w-4 h-4" />
