@@ -76,13 +76,13 @@ const Home = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-10 py-12">
           <div className="flex flex-col gap-2">
             <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
-              01 / Offline Local
+              01 / Offline First
             </span>
             <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
-              Absolute Privacy
+              Seamless Local Sync
             </h3>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              Your notes are stored directly in your browser's localStorage. Your data never leaves your computer.
+              Write notes instantly with zero network delay. Your work is cached locally in real time and automatically syncs to your account when connected.
             </p>
           </div>
 
@@ -106,7 +106,7 @@ const Home = () => {
               Clean Monochrome
             </h3>
             <p className="text-xs sm:text-sm text-zinc-500 dark:text-zinc-400 leading-relaxed">
-              No distracting gradients, glows, or animations. Just solid luxury typography that makes writing look premium.
+              No distracting gradients, glows, or animations. Just solid typography that makes writing look premium.
             </p>
           </div>
         </div>

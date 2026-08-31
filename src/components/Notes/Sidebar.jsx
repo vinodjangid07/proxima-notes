@@ -30,7 +30,7 @@ const Sidebar = () => {
                     />
                     {!isCollapsed && (
                         <span className="font-semibold text-lg text-zinc-800 dark:text-zinc-100 tracking-tight whitespace-nowrap animate-fade-in">
-                            Proxima Notes
+                            PROXIMA
                         </span>
                     )}
                 </Link>

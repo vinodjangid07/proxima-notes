@@ -1,11 +1,21 @@
 import { Link } from "react-router-dom";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../lib/firebase";
+import { signInWithEmailAndPassword, signInWithPopup } from "firebase/auth";
+import { auth, provider } from "../../lib/firebase";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
+
+  const handleGoogleLogin = () => {
+    signInWithPopup(auth, provider)
+      .then(() => {
+        navigate('/notes');
+      })
+      .catch((error) => {
+        console.error("Google Auth error:", error.message);
+      });
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -97,7 +107,7 @@ const Login = () => {
 
             <button
               type="button"
-              onClick={() => alert("Bind Google auth handler")}
+              onClick={handleGoogleLogin}
               className="w-full flex items-center justify-center gap-3 border border-zinc-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 hover:bg-zinc-100 dark:hover:bg-zinc-900 text-zinc-700 dark:text-zinc-200 py-3 rounded-xl font-semibold text-sm transition-colors cursor-pointer"
             >
               <img

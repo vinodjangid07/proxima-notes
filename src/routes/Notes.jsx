@@ -4,6 +4,7 @@ import { dbGetNotes, dbAddNote, dbUpdateNote, dbDeleteNote } from "../services/n
 import useAuth from "../context/useAuth";
 import { toast } from "react-toastify";
 import SyncStatusBadge from "../components/Notes/SyncStatusBadge";
+import { FileText } from "lucide-react";
 
 const Notes = () => {
     const { currentUser, loading } = useAuth();
@@ -162,8 +163,14 @@ const Notes = () => {
                                 <NoteCard key={note.id} note={note} editNote={editNote} deleteNote={deleteNote} />
                             ))
                         ) : (
-                            <div className="col-span-full text-zinc-400 dark:text-zinc-500 text-base text-center py-12 border border-dashed border-zinc-200 dark:border-zinc-800/80 rounded-2xl bg-zinc-50/20 dark:bg-zinc-900/5">
-                                No notes found in workspace. Create one above!
+                            <div className="col-span-full flex flex-col items-center justify-center py-16 text-center select-none animate-in fade-in duration-200">
+                                <div className="w-12 h-12 rounded-full bg-zinc-50/50 dark:bg-zinc-900/20 flex items-center justify-center border border-zinc-200/30 dark:border-zinc-800/30 mb-4">
+                                    <FileText className="w-5 h-5 text-zinc-400 dark:text-zinc-600" />
+                                </div>
+                                <h3 className="text-sm font-medium text-zinc-500 dark:text-zinc-500">No notes yet</h3>
+                                <p className="text-xs text-zinc-400 dark:text-zinc-600 max-w-[240px] mt-1 leading-relaxed">
+                                    Start writing above to create your first note.
+                                </p>
                             </div>
                         )}
                     </div>
