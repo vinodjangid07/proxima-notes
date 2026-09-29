@@ -25,61 +25,58 @@ const Profile = () => {
     }
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 px-4 sm:px-16 py-8 sm:py-24 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full flex flex-col justify-start items-center">
-            <div className="w-full max-w-5xl flex flex-col gap-6 sm:gap-10">
-                <Link to="/notes" className="inline-flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors self-start">
+        <div className="min-h-screen bg-white dark:bg-zinc-950 px-6 sm:px-16 py-12 sm:py-24 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full flex flex-col justify-start items-center font-sans">
+            <div className="w-full max-w-5xl flex flex-col gap-8 sm:gap-12">
+                <Link to="/notes" className="inline-flex items-center gap-2 text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors self-start select-none">
                     <ArrowLeft className="w-4 h-4" />
                     Back to Workspace
                 </Link>
 
                 {currentUser ? (
                     <div className="flex flex-col w-full">
-                        <div className="flex flex-col gap-6">
-                            <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-505 uppercase tracking-[0.3em]">
+                        <div className="flex flex-col gap-6 select-none">
+                            <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-[0.25em]">
                                 Account / Settings
                             </span>
 
                             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mt-2">
-                                {/* User Avatar */}
-                                <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center shrink-0">
+                                <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center shrink-0 shadow-sm">
                                     {currentUser.photoURL ? (
                                         <img src={currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
                                     ) : (
-                                        <User className="w-8 h-8 sm:w-10 sm:h-10 text-zinc-400 dark:text-zinc-650" />
+                                        <User className="w-10 h-10 text-zinc-400 dark:text-zinc-600" />
                                     )}
                                 </div>
 
                                 <div className="flex flex-col">
-                                    <h1 className="text-4xl sm:text-6xl font-light tracking-tight text-zinc-900 dark:text-zinc-50 leading-[1.15]">
+                                    <h1 className="text-4xl sm:text-6xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50 leading-tight">
                                         {currentUser.displayName || "Personal Profile"}
                                     </h1>
-                                    <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
+                                    <p className="text-base text-zinc-500 dark:text-zinc-400 mt-1 font-normal">
                                         Managing details for your synchronized workspace.
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        <hr className="border-t border-zinc-250/50 dark:border-zinc-900 w-full mt-8 sm:mt-16 mb-4 sm:mb-8" />
-
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-10 py-6 md:py-12">
-                            <div className="flex flex-col gap-1">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-16 pb-10">
+                            <div className="flex flex-col gap-2 bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
                                 <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
                                     01 / Contact
                                 </span>
-                                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                                     {currentUser.email || "No email"}
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                                     Authenticated via {isGoogle ? "Google Account" : "Email Account"}
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-2 bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
                                 <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
                                     02 / Member Since
                                 </span>
-                                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                                     {currentUser.metadata?.creationTime
                                         ? new Date(currentUser.metadata.creationTime).toLocaleDateString(undefined, {
                                             year: 'numeric',
@@ -88,35 +85,35 @@ const Profile = () => {
                                         })
                                         : "Unknown"}
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                                     Profile creation date on server
                                 </p>
                             </div>
 
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-2 bg-zinc-100 dark:bg-zinc-900 p-5 rounded-2xl">
                                 <span className="text-xs font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-widest">
                                     03 / Workspace
                                 </span>
-                                <h3 className="text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                                <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100 tracking-tight">
                                     {notesCount} Notes
                                 </h3>
-                                <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+                                <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-1">
                                     Saved locally in browser cache
                                 </p>
                             </div>
                         </div>
 
-                        <div className="mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-zinc-250/50 dark:border-zinc-900">
+                        <div className="pt-6">
                             <button
                                 onClick={handleLogout}
-                                className="inline-flex items-center justify-center gap-2 border border-zinc-900 dark:border-zinc-100 hover:bg-zinc-900 dark:hover:bg-zinc-100 hover:text-white dark:hover:text-zinc-950 bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 px-6 py-3 rounded-xl font-semibold text-sm transition-colors duration-200 cursor-pointer w-full sm:w-auto text-center"
+                                className="inline-flex items-center justify-center gap-2 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 px-7 py-3.5 rounded-xl font-medium text-sm transition-all duration-150 cursor-pointer w-full sm:w-auto text-center shadow-xs"
                             >
                                 Log Out
                             </button>
                         </div>
                     </div>
                 ) : (
-                    <div className="text-center py-20 border border-dashed border-zinc-200 dark:border-zinc-800 rounded-2xl bg-zinc-50/20 dark:bg-zinc-900/5 text-zinc-400 dark:text-zinc-500">
+                    <div className="text-center py-20 rounded-2xl bg-zinc-100 dark:bg-zinc-900 text-zinc-400 dark:text-zinc-500">
                         Please sign in to view your profile settings.
                     </div>
                 )}
