@@ -122,34 +122,49 @@ const Notes = () => {
                         <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">Personal Workspace</h1>
                         <div className="flex items-center gap-3">
                             <SyncStatusBadge />
-                            <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold bg-zinc-100 dark:bg-zinc-900 px-3 py-1.5 rounded-full">
+                            <span className="text-xs text-zinc-500 dark:text-zinc-400 font-semibold bg-zinc-100 dark:bg-zinc-900 px-3 py-1 rounded-full">
                                 {noteList.length} {noteList.length === 1 ? 'Note' : 'Notes'}
                             </span>
                         </div>
                     </div>
 
-                    <div className="bg-zinc-100/80 dark:bg-zinc-900/50 rounded-2xl p-5 sm:p-6 flex flex-col gap-3.5 w-full max-w-xl transition-all duration-200 shadow-sm focus-within:shadow-md focus-within:bg-zinc-100 dark:focus-within:bg-zinc-900">
+                    <div className="group bg-zinc-50 dark:bg-zinc-900/40 focus-within:bg-zinc-100 dark:focus-within:bg-zinc-800/60 rounded-[2rem] p-6 sm:p-8 flex flex-col gap-4 w-full max-w-2xl transition-all duration-300 shadow-sm focus-within:shadow-md relative overflow-hidden">
+                        
+                        <div className="absolute top-0 right-0 p-6 opacity-0 group-focus-within:opacity-10 transition-opacity duration-500 pointer-events-none">
+                            <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-zinc-900 dark:text-white"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </div>
+
+                        <div className="flex items-center gap-2 mb-2 opacity-50">
+                            <div className="h-px w-6 bg-zinc-400 dark:bg-zinc-600"></div>
+                            <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-mono">
+                                Create
+                            </span>
+                        </div>
+
                         <input
                             type="text"
                             value={noteTitle}
                             onChange={(e) => setNoteTitle(e.target.value)}
-                            placeholder="Title"
-                            className="bg-transparent text-lg font-bold text-zinc-900 dark:text-zinc-50 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none w-full"
+                            placeholder="Note Title"
+                            className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-50 placeholder-zinc-300 dark:placeholder-zinc-700 focus:outline-none w-full relative z-10"
                         />
                         <textarea
                             value={noteContent}
                             onChange={(e) => setNoteContent(e.target.value)}
-                            placeholder="Take a note..."
+                            placeholder="Start typing your thoughts..."
                             rows={3}
-                            className="bg-transparent text-sm sm:text-base text-zinc-700 dark:text-zinc-300 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none w-full resize-none min-h-[100px] leading-relaxed"
+                            className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none w-full resize-none min-h-[100px] leading-relaxed relative z-10"
                         />
-                        <div className="flex justify-between items-center pt-3 select-none">
-                            <span className="text-xs font-semibold text-zinc-400 dark:text-zinc-500">Local-first workspace</span>
+                        
+                        <div className="flex justify-between items-center mt-0 pt-4 border-t border-zinc-200/50 dark:border-zinc-800/50 relative z-10">
+                            <span className="text-[10px] font-mono tracking-widest uppercase text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
+                                Local-first workspace
+                            </span>
                             <button
-                                className="bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 px-5 py-2.5 rounded-xl font-semibold text-xs transition-all duration-150 cursor-pointer shadow-xs active:scale-98"
+                                className="bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 px-6 py-3 rounded-xl font-semibold text-xs transition-all duration-150 cursor-pointer shadow-xs active:scale-95 ml-auto sm:ml-0"
                                 onClick={addNote}
                             >
-                                Save Note
+                                Save
                             </button>
                         </div>
                     </div>

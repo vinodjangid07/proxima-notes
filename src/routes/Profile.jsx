@@ -42,7 +42,7 @@ const Profile = () => {
                             <div className="flex flex-col sm:flex-row sm:items-center gap-6 mt-2">
                                 <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center shrink-0 shadow-sm">
                                     {currentUser.photoURL ? (
-                                        <img src={currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" />
+                                        <img src={currentUser.photoURL} alt="Profile" className="w-full h-full object-cover" referrerPolicy="no-referrer" />
                                     ) : (
                                         <User className="w-10 h-10 text-zinc-400 dark:text-zinc-600" />
                                     )}

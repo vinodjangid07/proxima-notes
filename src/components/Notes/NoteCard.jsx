@@ -21,80 +21,102 @@ const NoteCard = memo(({ note, editNote, deleteNote }) => {
     }
 
     return (
-        <div className="w-full flex flex-col justify-between bg-zinc-100/60 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-900/80 rounded-2xl p-5 min-h-[170px] transition-all duration-200 shadow-sm hover:shadow-md relative group">
+        <div 
+            className="group relative flex flex-col justify-between bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-[2rem] p-6 sm:p-8 min-h-[220px] transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden"
+            onDoubleClick={() => !isEditing && setIsEditing(true)}
+            title={!isEditing ? "Double click to edit" : ""}
+        >
             <ConfirmCard 
-            confirmDelete={confirmDelete} 
-            setConfirmDelete={setConfirmDelete} 
-            deleteNote={deleteNote}
-            noteId={note.id}/>
+                confirmDelete={confirmDelete} 
+                setConfirmDelete={setConfirmDelete} 
+                deleteNote={deleteNote}
+                noteId={note.id}
+            />
+
+
             {isEditing ? (
-                <div className="flex flex-col gap-3 w-full h-full flex-1">
+                <div className="flex flex-col gap-3 w-full h-full flex-1 relative z-10">
+                    <div className="flex items-center gap-2 mb-2 opacity-50">
+                        <div className="h-px w-6 bg-zinc-400 dark:bg-zinc-600"></div>
+                        <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-mono">
+                            Editing...
+                        </span>
+                    </div>
                     <input 
                         autoFocus 
                         type='text' 
                         value={editTitle} 
                         onChange={(e) => setEditTitle(e.target.value)} 
-                        placeholder="Title"
-                        className='bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 px-3.5 py-2.5 text-base font-semibold rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-300 dark:focus:ring-zinc-700 w-full' 
+                        placeholder="Note Title"
+                        className='bg-transparent text-zinc-900 dark:text-zinc-100 text-2xl sm:text-3xl font-light tracking-tight placeholder-zinc-300 dark:placeholder-zinc-700 focus:outline-none w-full' 
                     />
                     <textarea 
                         value={editContent} 
                         onChange={(e) => setEditContent(e.target.value)} 
-                        placeholder="Content"
-                        rows={4}
-                        className='bg-white dark:bg-zinc-950 text-zinc-800 dark:text-zinc-200 p-3.5 text-sm rounded-xl focus:outline-none focus:ring-2 focus:ring-zinc-300 dark:focus:ring-zinc-700 w-full resize-none flex-1 min-h-[100px] leading-relaxed' 
+                        placeholder="Start typing your thoughts..."
+                        className='bg-transparent text-zinc-600 dark:text-zinc-400 text-sm focus:outline-none w-full resize-none flex-1 min-h-[100px] leading-relaxed mt-2' 
                     />
                 </div>
             ) : (
-                <div className="flex flex-col flex-1 min-w-0 cursor-pointer" onDoubleClick={() => setIsEditing(true)} title="Double click to edit">
-                    <div className="flex items-start justify-between gap-3 w-full">
-                        <h3 className="text-base font-semibold truncate flex-1 text-zinc-900 dark:text-zinc-100 tracking-tight">
-                            {note.title || "Untitled"}
-                        </h3>
+                <div className="flex flex-col flex-1 min-w-0 relative z-10">
+                    <div className="flex items-center gap-2 mb-6 opacity-80">
+                        <div className="h-px w-6 bg-zinc-300 dark:bg-zinc-700"></div>
+                        <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-mono">
+                            {note.title ? "Saved" : "Untitled"}
+                        </span>
                     </div>
                     
-                    <p className="text-sm font-normal mt-2 flex-1 whitespace-pre-wrap text-zinc-600 dark:text-zinc-300 leading-relaxed">
+                    <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-tight">
+                        {note.title || "Untitled"}
+                    </h3>
+                    
+                    <p className="text-sm font-normal mt-4 flex-1 text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-4 whitespace-pre-wrap">
                         {note.content || "No content"}
                     </p>
                 </div>
             )}
 
-            <div className="flex justify-end gap-1.5 mt-4 pt-3 shrink-0 select-none">
-                {isEditing ? (
-                    <>
-                        <button
-                            className="p-2 rounded-xl text-zinc-400 hover:text-green-600 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                            onClick={saveEdit}
-                            title="Save changes"
-                        >
-                            <Check className="w-4 h-4" />
-                        </button>
-                        <button
-                            className="p-2 rounded-xl text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                            onClick={cancelEdit}
-                            title="Cancel edit"
-                        >
-                            <X className="w-4 h-4" />
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <button
-                            className="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/50 dark:hover:bg-zinc-800 transition-colors cursor-pointer"
-                            onClick={() => setIsEditing(true)}
-                            title="Edit note"
-                        >
-                            <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                            className="p-2 rounded-xl text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
-                            onClick={() => setConfirmDelete(true)}
-                            title="Delete note"
-                        >
-                            <Trash2 className="w-4 h-4" />
-                        </button>
-                    </>
-                )}
+            <div className="flex items-center justify-between mt-6 pt-4 shrink-0 select-none relative z-10 border-t border-zinc-200/50 dark:border-zinc-800/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-widest uppercase">
+                    Actions
+                </span>
+                <div className="flex justify-end gap-1">
+                    {isEditing ? (
+                        <>
+                            <button
+                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+                                onClick={saveEdit}
+                                title="Save changes"
+                            >
+                                <Check className="w-4 h-4" />
+                            </button>
+                            <button
+                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+                                onClick={cancelEdit}
+                                title="Cancel edit"
+                            >
+                                <X className="w-4 h-4" />
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <button
+                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
+                                onClick={() => setIsEditing(true)}
+                                title="Edit note"
+                            >
+                                <Pencil className="w-4 h-4" />
+                            </button>
+                            <button
+                                className="p-2 rounded-xl text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
+                                onClick={() => setConfirmDelete(true)}
+                                title="Delete note"
+                            >
+                                <Trash2 className="w-4 h-4" />
+                            </button>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     )

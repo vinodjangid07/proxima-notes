@@ -97,7 +97,7 @@ const Home = () => {
               <Zap className="w-10 h-10" strokeWidth={1} />
             </div>
             
-            <div className="relative z-10 mt-32">
+            <div className="relative z-10 mt-12">
               <span className="text-xs font-mono text-zinc-400 dark:text-zinc-500 mb-4 block uppercase tracking-widest">01 / Architecture</span>
               <h3 className="text-3xl sm:text-4xl font-light tracking-tight text-zinc-900 dark:text-zinc-100 mb-4">
                 Zero network delay.
@@ -113,7 +113,7 @@ const Home = () => {
              <div className="relative z-10 flex-1 flex flex-col h-full">
               <span className="text-xs font-mono text-zinc-500 dark:text-zinc-400 mb-4 block uppercase tracking-widest">02 / Editor</span>
               
-              <div className="flex-1 min-h-[120px] flex items-center justify-center py-8">
+              <div className="flex-1 min-h-[60px] flex items-center justify-center py-6">
                  <div className="w-full h-px bg-zinc-700 dark:bg-zinc-300 relative">
                     <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 bg-zinc-100 dark:bg-zinc-900 rotate-45"></div>
                  </div>
