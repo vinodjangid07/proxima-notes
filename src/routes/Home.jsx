@@ -3,6 +3,7 @@ import { signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../lib/firebase";
 import useAuth from "../context/useAuth";
 import Navbar from "../components/Notes/Navbar";
+import Footer from "../components/Notes/Footer";
 import { ArrowRight, Zap } from "lucide-react";
 
 const Home = () => {
@@ -150,10 +151,7 @@ const Home = () => {
         </div>
       </main>
 
-      <footer className="relative z-10 w-full h-16 flex items-center justify-between px-6 sm:px-16 shrink-0 text-[10px] sm:text-xs text-zinc-400 dark:text-zinc-500 select-none bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md">
-        <span className="font-medium">© {new Date().getFullYear()} PROXIMA. ALL RIGHTS RESERVED.</span>
-        <span className="font-medium tracking-widest">DESIGNED FOR WRITERS.</span>
-      </footer>
+      <Footer />
     </div>
   );
 };

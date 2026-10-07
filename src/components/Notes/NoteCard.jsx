@@ -1,30 +1,96 @@
-import { Trash2, Pencil, Check, X } from 'lucide-react';
+import { Trash2, Copy, Maximize2, Check } from 'lucide-react';
 import { useState, memo } from 'react';
 import ConfirmCard from './ConfirmCard';
+import { toast } from 'react-toastify';
 
-const NoteCard = memo(({ note, editNote, deleteNote }) => {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editTitle, setEditTitle] = useState(note.title);
-    const [editContent, setEditContent] = useState(note.content || '');
+const NoteCard = memo(({ note, viewMode = 'grid', deleteNote, onOpenModal }) => {
     const [confirmDelete, setConfirmDelete] = useState(false);
+    const [copied, setCopied] = useState(false);
 
-    const saveEdit = () => {
-        if (!editTitle.trim() && !editContent.trim()) return;
-        setIsEditing(false);
-        editNote(note.id, editTitle, editContent);
+    const handleCopy = (e) => {
+        e.stopPropagation();
+        const fullText = `${note.title ? note.title + "\n\n" : ""}${note.content || ""}`;
+        navigator.clipboard.writeText(fullText);
+        setCopied(true);
+        toast.info("Copied to clipboard!");
+        setTimeout(() => setCopied(false), 2000);
     };
 
-    const cancelEdit = () => {
-        setIsEditing(false);
-        setEditTitle(note.title);
-        setEditContent(note.content || '');
+    const handleDeleteClick = (e) => {
+        e.stopPropagation();
+        setConfirmDelete(true);
+    };
+
+    const formattedDate = note.createdAt 
+        ? new Date(note.createdAt?.seconds ? note.createdAt.seconds * 1000 : note.createdAt).toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric'
+          })
+        : "Just now";
+
+    if (viewMode === 'list') {
+        return (
+            <div 
+                onClick={() => onOpenModal(note)}
+                className="group relative flex items-center justify-between bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100/90 dark:hover:bg-zinc-800/70 rounded-2xl p-4 sm:p-5 transition-all duration-300 cursor-pointer overflow-hidden gap-4"
+            >
+                <ConfirmCard 
+                    confirmDelete={confirmDelete} 
+                    setConfirmDelete={setConfirmDelete} 
+                    deleteNote={deleteNote}
+                    noteId={note.id}
+                />
+
+                <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-6 flex-1 min-w-0">
+                    <h3 className="text-base sm:text-lg font-light tracking-tight text-zinc-900 dark:text-zinc-100 truncate sm:w-1/3">
+                        {note.title || "Untitled Note"}
+                    </h3>
+                    
+                    <p className="text-xs sm:text-sm font-normal text-zinc-500 dark:text-zinc-400 truncate flex-1">
+                        {note.content || "Empty note content..."}
+                    </p>
+                </div>
+
+                <div className="flex items-center gap-3 shrink-0">
+                    <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500 hidden sm:inline-block">
+                        {formattedDate}
+                    </span>
+
+                    <div className="flex items-center gap-1 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                        <button
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onOpenModal(note);
+                            }}
+                            title="Read full note"
+                        >
+                            <Maximize2 className="w-4 h-4" />
+                        </button>
+                        <button
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                            onClick={handleCopy}
+                            title="Copy note"
+                        >
+                            {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                        </button>
+                        <button
+                            className="p-1.5 rounded-lg text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                            onClick={handleDeleteClick}
+                            title="Delete note"
+                        >
+                            <Trash2 className="w-4 h-4" />
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
     }
 
     return (
         <div 
-            className="group relative flex flex-col justify-between bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100 dark:hover:bg-zinc-800/60 rounded-[2rem] p-6 sm:p-8 min-h-[220px] transition-all duration-300 shadow-sm hover:shadow-md overflow-hidden"
-            onDoubleClick={() => !isEditing && setIsEditing(true)}
-            title={!isEditing ? "Double click to edit" : ""}
+            onClick={() => onOpenModal(note)}
+            className="group relative flex flex-col justify-between bg-zinc-50 dark:bg-zinc-900/40 hover:bg-zinc-100/90 dark:hover:bg-zinc-800/70 rounded-[2rem] p-6 sm:p-7 min-h-[200px] transition-all duration-300 cursor-pointer overflow-hidden"
         >
             <ConfirmCard 
                 confirmDelete={confirmDelete} 
@@ -33,93 +99,52 @@ const NoteCard = memo(({ note, editNote, deleteNote }) => {
                 noteId={note.id}
             />
 
-
-            {isEditing ? (
-                <div className="flex flex-col gap-3 w-full h-full flex-1 relative z-10">
-                    <div className="flex items-center gap-2 mb-2 opacity-50">
-                        <div className="h-px w-6 bg-zinc-400 dark:bg-zinc-600"></div>
-                        <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-mono">
-                            Editing...
-                        </span>
-                    </div>
-                    <input 
-                        autoFocus 
-                        type='text' 
-                        value={editTitle} 
-                        onChange={(e) => setEditTitle(e.target.value)} 
-                        placeholder="Note Title"
-                        className='bg-transparent text-zinc-900 dark:text-zinc-100 text-2xl sm:text-3xl font-light tracking-tight placeholder-zinc-300 dark:placeholder-zinc-700 focus:outline-none w-full' 
-                    />
-                    <textarea 
-                        value={editContent} 
-                        onChange={(e) => setEditContent(e.target.value)} 
-                        placeholder="Start typing your thoughts..."
-                        className='bg-transparent text-zinc-600 dark:text-zinc-400 text-sm focus:outline-none w-full resize-none flex-1 min-h-[100px] leading-relaxed mt-2' 
-                    />
+            <div className="flex flex-col flex-1 min-w-0 relative z-10">
+                <div className="flex items-center justify-between mb-3 opacity-60">
+                    <span className="text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                        {formattedDate}
+                    </span>
                 </div>
-            ) : (
-                <div className="flex flex-col flex-1 min-w-0 relative z-10">
-                    <div className="flex items-center gap-2 mb-6 opacity-80">
-                        <div className="h-px w-6 bg-zinc-300 dark:bg-zinc-700"></div>
-                        <span className="text-[10px] font-semibold text-zinc-500 dark:text-zinc-400 uppercase tracking-[0.2em] font-mono">
-                            {note.title ? "Saved" : "Untitled"}
-                        </span>
-                    </div>
-                    
-                    <h3 className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-tight">
-                        {note.title || "Untitled"}
-                    </h3>
-                    
-                    <p className="text-sm font-normal mt-4 flex-1 text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-4 whitespace-pre-wrap">
-                        {note.content || "No content"}
-                    </p>
-                </div>
-            )}
+                
+                <h3 className="text-xl sm:text-2xl font-light tracking-tight text-zinc-900 dark:text-zinc-100 line-clamp-2 leading-snug">
+                    {note.title || "Untitled Note"}
+                </h3>
+                
+                <p className="text-xs sm:text-sm font-normal mt-3 flex-1 text-zinc-500 dark:text-zinc-400 leading-relaxed line-clamp-4 whitespace-pre-wrap">
+                    {note.content || "Empty note content..."}
+                </p>
+            </div>
 
-            <div className="flex items-center justify-between mt-6 pt-4 shrink-0 select-none relative z-10 border-t border-zinc-200/50 dark:border-zinc-800/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-mono tracking-widest uppercase">
-                    Actions
-                </span>
-                <div className="flex justify-end gap-1">
-                    {isEditing ? (
-                        <>
-                            <button
-                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
-                                onClick={saveEdit}
-                                title="Save changes"
-                            >
-                                <Check className="w-4 h-4" />
-                            </button>
-                            <button
-                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
-                                onClick={cancelEdit}
-                                title="Cancel edit"
-                            >
-                                <X className="w-4 h-4" />
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <button
-                                className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-colors cursor-pointer"
-                                onClick={() => setIsEditing(true)}
-                                title="Edit note"
-                            >
-                                <Pencil className="w-4 h-4" />
-                            </button>
-                            <button
-                                className="p-2 rounded-xl text-zinc-500 hover:text-red-500 dark:hover:text-red-400 transition-colors cursor-pointer"
-                                onClick={() => setConfirmDelete(true)}
-                                title="Delete note"
-                            >
-                                <Trash2 className="w-4 h-4" />
-                            </button>
-                        </>
-                    )}
+            <div className="flex items-center justify-end mt-4 pt-2 shrink-0 select-none relative z-10">
+                <div className="flex items-center gap-1 opacity-80 sm:opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                    <button
+                        className="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onOpenModal(note);
+                        }}
+                        title="Read full note"
+                    >
+                        <Maximize2 className="w-4 h-4" />
+                    </button>
+                    <button
+                        className="p-2 rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-200/60 dark:hover:bg-zinc-700/60 transition-colors cursor-pointer"
+                        onClick={handleCopy}
+                        title="Copy note"
+                    >
+                        {copied ? <Check className="w-4 h-4 text-green-500" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                    <button
+                        className="p-2 rounded-xl text-zinc-400 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors cursor-pointer"
+                        onClick={handleDeleteClick}
+                        title="Delete note"
+                    >
+                        <Trash2 className="w-4 h-4" />
+                    </button>
                 </div>
             </div>
         </div>
     )
 })
 
-export default NoteCard
+export default NoteCard;
