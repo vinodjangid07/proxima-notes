@@ -1,230 +1,148 @@
-import { useEffect, useState, useCallback, useRef, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import NoteCard from "../components/Notes/NoteCard";
 import NoteModal from "../components/Notes/NoteModal";
-import { dbGetNotes, dbAddNote, dbUpdateNote, dbDeleteNote } from "../services/notesServices";
-import useAuth from "../context/useAuth";
-import { toast } from "react-toastify";
 import SyncStatusBadge from "../components/Notes/SyncStatusBadge";
+import ViewToggleButton from "../components/Notes/ViewToggleButton";
+import { useNotes } from "../hooks/useNotes";
+import { useDebounce } from "../hooks/useDebounce";
 import { FileText, Search, LayoutGrid, List, X } from "lucide-react";
 
-const DEFAULT_DEMO_NOTES = [
-    {
-        id: "demo-note-1",
-        userId: "guest",
-        title: "Welcome to Proxima Notes ✨",
-        content: "A distraction-free, local-first workspace. Notes are saved instantly in your browser cache and sync to the cloud when online.\n\nClick any note to open the full reader and auto-save editor view!",
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: "demo-note-2",
-        userId: "guest",
-        title: "Productivity & Focus",
-        content: "“Simplicity is about subtracting the obvious and adding the meaningful.” — John Maeda\n\nDraft quick thoughts, organize ideas, and switch seamlessly between grid and list views.",
-        createdAt: new Date(Date.now() - 3600000).toISOString()
-    }
-];
-
 const Notes = () => {
-    const { currentUser, loading } = useAuth();
+    const { 
+        notes: noteList, 
+        syncStatus, 
+        pendingCount, 
+        addNote: hookAddNote, 
+        editNote, 
+        deleteNote, 
+        retrySync 
+    } = useNotes();
+
     const [noteTitle, setNoteTitle] = useState('');
     const [noteContent, setNoteContent] = useState('');
     const [searchQuery, setSearchQuery] = useState('');
     const [viewMode, setViewMode] = useState('grid');
-    const [selectedNote, setSelectedNote] = useState(null);
+    const [selectedNoteId, setSelectedNoteId] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const [noteList, setNoteList] = useState(() => {
-        const savedNotes = localStorage.getItem('Notes List');
-        if (savedNotes) {
-            try {
-                const parsed = JSON.parse(savedNotes);
-                if (Array.isArray(parsed) && parsed.length > 0) {
-                    return parsed;
-                }
-            } catch (e) {
-                console.error("Failed to parse saved notes", e);
-            }
-        }
-        return DEFAULT_DEMO_NOTES;
-    });
+    // Debounce search query to prevent excessive filtering during rapid typing
+    const debouncedSearchQuery = useDebounce(searchQuery, 200);
 
-    const noteListRef = useRef(noteList);
-    useEffect(() => {
-        noteListRef.current = noteList;
-    }, [noteList]);
+    // Derived selected note: Automatically stays in sync with real-time onSnapshot updates
+    const selectedNote = useMemo(() => {
+        if (!selectedNoteId) return null;
+        return noteList.find(n => n.id === selectedNoteId) || null;
+    }, [noteList, selectedNoteId]);
 
-    const addNote = () => {
+    const handleAddNote = useCallback(() => {
         if (!noteContent.trim() && !noteTitle.trim()) {
             return;
         }
-        const randomId = crypto.randomUUID();
-        const newNote = {
-            id: randomId,
-            userId: currentUser?.uid || 'guest',
-            title: noteTitle,
-            content: noteContent,
-            createdAt: new Date().toISOString()
-        };
-
-        setNoteList((prevList) => [newNote, ...prevList]);
-
-        if (currentUser) {
-            dbAddNote(randomId, currentUser.uid, noteTitle, noteContent).catch(err => console.error(err));
-        }
-
+        hookAddNote(noteTitle, noteContent);
         setNoteTitle('');
         setNoteContent('');
-        toast.success("Note added!");
-    };
+    }, [hookAddNote, noteTitle, noteContent]);
 
-    const handleKeyDownCreate = (e) => {
+    const handleKeyDownCreate = useCallback((e) => {
         if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
             e.preventDefault();
-            addNote();
+            handleAddNote();
         }
-    };
+    }, [handleAddNote]);
 
-    const editNote = useCallback((id, newTitle, newContent) => {
-        setNoteList((prevList) => prevList.map((note) => 
-            note.id === id ? { ...note, title: newTitle, content: newContent } : note
-        ));
-
-        setSelectedNote((prev) => prev && prev.id === id ? { ...prev, title: newTitle, content: newContent } : prev);
-
-        if (currentUser) {
-            dbUpdateNote(id, newTitle, newContent).catch(err => {
-                toast.error("Failed to sync edit!");
-                console.error(err);
-            });
-        }
-    }, [currentUser]);
-
-    const deleteNote = useCallback((id) => {
-        setNoteList((prevList) => prevList.filter((note) => note.id !== id));
-
-        if (selectedNote && selectedNote.id === id) {
-            setIsModalOpen(false);
-            setSelectedNote(null);
-        }
-
-        if (currentUser) {
-            dbDeleteNote(id).then(() => {
-                toast.success("Note deleted!");
-            }).catch(err => {
-                toast.error("Failed to delete!");
-                console.error(err);
-            });
-        } else {
-            toast.success("Note deleted! (locally)");
-        }
-    }, [currentUser, selectedNote]);
-
-    const openNoteModal = (note) => {
-        setSelectedNote(note);
+    // Stable callbacks for NoteCard memoization
+    const openNoteModal = useCallback((note) => {
+        setSelectedNoteId(note.id);
         setIsModalOpen(true);
-    };
-
-    const closeNoteModal = () => {
-        setIsModalOpen(false);
-        setSelectedNote(null);
-    };
-
-    useEffect(() => {
-        localStorage.setItem('Notes List', JSON.stringify(noteList));
-    }, [noteList]);
-
-    useEffect(() => {
-        const clearNotesOnLogout = () => {
-            setNoteList(DEFAULT_DEMO_NOTES);
-        };
-
-        window.addEventListener("local-logout", clearNotesOnLogout);
-        return () => window.removeEventListener("local-logout", clearNotesOnLogout);
     }, []);
 
-    useEffect(() => {
-        if (loading) return;
+    const closeNoteModal = useCallback(() => {
+        setIsModalOpen(false);
+        setSelectedNoteId(null);
+    }, []);
 
-        const loadAndSyncNotes = async () => {
-            if (!currentUser || !navigator.onLine) {
-                return;
+    const handleDeleteNote = useCallback((id) => {
+        deleteNote(id);
+        setSelectedNoteId((currentId) => {
+            if (currentId === id) {
+                setIsModalOpen(false);
+                return null;
             }
+            return currentId;
+        });
+    }, [deleteNote]);
 
-            const currentNotes = noteListRef.current;
-            if (currentNotes.length > 0) {
-                const unsynced = currentNotes.filter((note) => note.userId !== currentUser.uid && !note.id.startsWith("demo-note-"));
-                for (const note of unsynced) {
-                    await dbAddNote(note.id, currentUser.uid, note.title, note.content);
-                }
-            }
-            const serverNotes = await dbGetNotes(currentUser.uid);
-            if (serverNotes && serverNotes.length > 0) {
-                setNoteList(serverNotes);
-            }
-        };
+    const handleClearSearch = useCallback(() => {
+        setSearchQuery('');
+    }, []);
 
-        loadAndSyncNotes().catch(err => console.error("Sync/Fetch error:", err));
-
-        const handleOnline = () => {
-            loadAndSyncNotes().catch(err => console.error("Sync/Fetch error on online:", err));
-        };
-
-        window.addEventListener("online", handleOnline);
-        return () => window.removeEventListener("online", handleOnline);
-    }, [currentUser, loading]);
+    const setGridView = useCallback(() => setViewMode('grid'), []);
+    const setListView = useCallback(() => setViewMode('list'), []);
 
     const filteredNotes = useMemo(() => {
-        if (!searchQuery.trim()) return noteList;
-        const query = searchQuery.toLowerCase();
+        const query = debouncedSearchQuery.trim().toLowerCase();
+        if (!query) return noteList;
         return noteList.filter(
             note => (note.title && note.title.toLowerCase().includes(query)) || 
                     (note.content && note.content.toLowerCase().includes(query))
         );
-    }, [noteList, searchQuery]);
+    }, [noteList, debouncedSearchQuery]);
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 px-4 sm:px-8 py-8 sm:py-16 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 w-full">
+        <div className="min-h-screen bg-white dark:bg-[#121214] px-4 sm:px-8 py-8 sm:py-16 text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 w-full font-sans">
             <div className="flex flex-col gap-10 sm:gap-14 w-full max-w-5xl mx-auto">
 
                 {/* Header & Quick Creator */}
                 <div className="flex flex-col gap-8 w-full items-center">
                     <div className="w-full flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 max-w-2xl pb-1 select-none">
-                        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
-                            Personal Workspace
-                        </h1>
+                        <div>
+                            <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
+                                Workspace
+                            </h1>
+                            <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] mt-0.5">
+                                Local-first thought repository. Stored on-device and synced to cloud.
+                            </p>
+                        </div>
                         <div className="flex items-center gap-2.5 sm:gap-3 shrink-0">
-                            <SyncStatusBadge />
-                            <span className="h-7 inline-flex items-center text-xs text-zinc-500 dark:text-zinc-400 font-medium bg-zinc-100 dark:bg-zinc-900 px-3 rounded-full whitespace-nowrap shrink-0">
+                            <SyncStatusBadge 
+                                status={syncStatus} 
+                                pendingCount={pendingCount} 
+                                onRetry={retrySync} 
+                            />
+                            <span className="h-7 inline-flex items-center text-xs text-[#52525b] dark:text-[#a1a1aa] font-medium bg-[#f4f4f5] dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] px-3 rounded-full whitespace-nowrap shrink-0">
                                 {noteList.length} {noteList.length === 1 ? 'Note' : 'Notes'}
                             </span>
                         </div>
                     </div>
 
                     {/* Quick Creator */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900/50 focus-within:bg-zinc-100/90 dark:focus-within:bg-zinc-900/80 rounded-[2rem] p-6 sm:p-8 flex flex-col gap-4 w-full max-w-2xl transition-all duration-300 relative overflow-hidden">
+                    <div className="bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-xl p-6 sm:p-7 flex flex-col gap-3 w-full max-w-2xl transition-all duration-200 shadow-xs focus-within:border-[#5645d4] dark:focus-within:border-[#5645d4]">
                         <input
                             type="text"
                             value={noteTitle}
                             onChange={(e) => setNoteTitle(e.target.value)}
                             onKeyDown={handleKeyDownCreate}
-                            placeholder="Note Title"
-                            className="text-2xl sm:text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-50 placeholder-zinc-300 dark:placeholder-zinc-700 focus:outline-none w-full bg-transparent"
+                            placeholder="Note title..."
+                            className="text-xl sm:text-2xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5] placeholder-[#a1a1aa] dark:placeholder-[#71717a] focus:outline-none w-full bg-transparent"
                         />
                         <textarea
                             value={noteContent}
                             onChange={(e) => setNoteContent(e.target.value)}
                             onKeyDown={handleKeyDownCreate}
-                            placeholder="Start typing your thoughts..."
+                            placeholder="Write in markdown... Use - [ ] for checklists, ## for headings, > for quotes"
                             rows={3}
-                            className="text-sm sm:text-base text-zinc-600 dark:text-zinc-400 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none w-full bg-transparent resize-none min-h-[100px] leading-relaxed font-normal"
+                            className="text-sm sm:text-base text-[#18181b] dark:text-[#e4e4e7] placeholder-[#a1a1aa] dark:placeholder-[#71717a] focus:outline-none w-full bg-transparent resize-none min-h-[90px] leading-relaxed font-normal"
                         />
                         
-                        <div className="flex justify-end items-center pt-1">
+                        <div className="flex justify-between items-center pt-2 border-t border-[#f4f4f5] dark:border-[#27272a]">
+                            <span className="text-xs text-[#71717a] dark:text-[#a1a1aa]">
+                                Press <kbd className="px-1.5 py-0.5 rounded-sm bg-[#f4f4f5] dark:bg-[#121214] border border-[#e4e4e7] dark:border-[#2e2e34] text-[11px] font-mono">Ctrl+Enter</kbd> to save
+                            </span>
                             <button
-                                className="bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 px-6 py-2.5 rounded-xl font-medium text-xs transition-all duration-150 cursor-pointer active:scale-95"
-                                onClick={addNote}
+                                className="bg-[#5645d4] hover:bg-[#4534b3] text-white px-5 py-2 rounded-md font-medium text-xs sm:text-sm transition-colors cursor-pointer active:scale-95 shadow-xs"
+                                onClick={handleAddNote}
                             >
-                                Save
+                                Save Note
                             </button>
                         </div>
                     </div>
@@ -233,54 +151,44 @@ const Notes = () => {
                 {/* Toolbar & Controls */}
                 <div className="flex flex-col gap-6 w-full">
                     <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-4 w-full pb-1">
-                        <h2 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400 select-none">
-                            Notes ({filteredNotes.length})
+                        <h2 className="text-sm font-semibold text-[#52525b] dark:text-[#a1a1aa] select-none">
+                            All Notes ({filteredNotes.length})
                         </h2>
 
                         {/* Search & View Controls */}
                         <div className="flex items-center gap-2.5 w-full sm:w-auto">
                             <div className="relative flex-1 sm:flex-initial sm:w-64 h-10 flex items-center">
-                                <Search className="w-4 h-4 text-zinc-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                                <Search className="w-4 h-4 text-[#71717a] dark:text-[#a1a1aa] absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                                 <input
                                     type="text"
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    placeholder="Search notes..."
-                                    className="w-full h-full bg-zinc-100 dark:bg-zinc-900/60 hover:bg-zinc-100 dark:hover:bg-zinc-900 focus:bg-zinc-100 dark:focus:bg-zinc-900 rounded-xl pl-10 pr-8 text-xs text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-500 focus:outline-none transition-all"
+                                    placeholder="Search notes by title or content..."
+                                    className="w-full h-full bg-[#f4f4f5] dark:bg-[#1c1c1f] hover:bg-[#edece9] dark:hover:bg-[#242429] focus:bg-white dark:focus:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] focus:border-[#5645d4] dark:focus:border-[#5645d4] rounded-md pl-10 pr-8 text-sm text-[#18181b] dark:text-[#f4f4f5] placeholder-[#71717a] dark:placeholder-[#a1a1aa] focus:outline-none transition-all"
                                 />
                                 {searchQuery && (
                                     <button 
-                                        onClick={() => setSearchQuery('')}
-                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200"
+                                        onClick={handleClearSearch}
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#71717a] hover:text-[#18181b] dark:hover:text-[#f4f4f5] cursor-pointer"
                                     >
                                         <X className="w-3.5 h-3.5" />
                                     </button>
                                 )}
                             </div>
 
-                            <div className="flex items-center h-10 bg-zinc-100 dark:bg-zinc-900/60 p-1 rounded-xl shrink-0">
-                                <button
-                                    onClick={() => setViewMode('grid')}
-                                    className={`h-full aspect-square flex items-center justify-center rounded-lg transition-all cursor-pointer ${
-                                        viewMode === 'grid'
-                                            ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
-                                            : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
-                                    }`}
+                            <div className="flex items-center h-10 bg-[#f4f4f5] dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] p-1 rounded-md shrink-0">
+                                <ViewToggleButton
+                                    active={viewMode === 'grid'}
+                                    onClick={setGridView}
+                                    icon={LayoutGrid}
                                     title="Grid View"
-                                >
-                                    <LayoutGrid className="w-4 h-4" />
-                                </button>
-                                <button
-                                    onClick={() => setViewMode('list')}
-                                    className={`h-full aspect-square flex items-center justify-center rounded-lg transition-all cursor-pointer ${
-                                        viewMode === 'list'
-                                            ? 'bg-white dark:bg-zinc-800 text-zinc-900 dark:text-zinc-100 shadow-xs'
-                                            : 'text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-300'
-                                    }`}
+                                />
+                                <ViewToggleButton
+                                    active={viewMode === 'list'}
+                                    onClick={setListView}
+                                    icon={List}
                                     title="List View"
-                                >
-                                    <List className="w-4 h-4" />
-                                </button>
+                                />
                             </div>
                         </div>
                     </div>
@@ -288,29 +196,29 @@ const Notes = () => {
                     {/* Notes Grid / List */}
                     <div className={
                         viewMode === 'grid'
-                            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 w-full"
-                            : "flex flex-col gap-4 w-full"
+                            ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 w-full"
+                            : "flex flex-col gap-3 w-full"
                     }>
                         {filteredNotes.length > 0 ? (
                             filteredNotes.map((note) => (
                                 <NoteCard 
                                     key={note.id} 
                                     note={note} 
-                                    viewMode={viewMode}
-                                    deleteNote={deleteNote} 
+                                    viewMode={viewMode} 
+                                    deleteNote={handleDeleteNote} 
                                     onOpenModal={openNoteModal}
                                 />
                             ))
                         ) : (
-                            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center select-none animate-in fade-in duration-200">
-                                <div className="w-12 h-12 rounded-full bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center mb-4">
-                                    <FileText className="w-5 h-5 text-zinc-400 dark:text-zinc-600" />
+                            <div className="col-span-full flex flex-col items-center justify-center py-20 text-center select-none bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-xl p-8">
+                                <div className="w-12 h-12 rounded-full bg-[#f4f4f5] dark:bg-[#121214] border border-[#e4e4e7] dark:border-[#2e2e34] flex items-center justify-center mb-4">
+                                    <FileText className="w-5 h-5 text-[#71717a] dark:text-[#a1a1aa]" />
                                 </div>
-                                <h3 className="text-sm font-semibold text-zinc-500 dark:text-zinc-400">
-                                    {searchQuery ? "No matching notes" : "No notes yet"}
+                                <h3 className="text-base font-semibold text-[#18181b] dark:text-[#f4f4f5]">
+                                    {debouncedSearchQuery ? `No notes matched "${debouncedSearchQuery}"` : "Your workspace is waiting"}
                                 </h3>
-                                <p className="text-xs text-zinc-400 dark:text-zinc-600 max-w-[240px] mt-1 leading-relaxed">
-                                    {searchQuery ? "Try searching for another keyword" : "Start writing above to create your first note."}
+                                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] max-w-sm mt-1 leading-relaxed">
+                                    {debouncedSearchQuery ? "Try searching for a different keyword or clear the filter." : "Jot down your first thought above or press Ctrl+Enter to save a quick note."}
                                 </p>
                             </div>
                         )}
@@ -323,7 +231,7 @@ const Notes = () => {
                 isOpen={isModalOpen}
                 onClose={closeNoteModal}
                 editNote={editNote}
-                deleteNote={deleteNote}
+                deleteNote={handleDeleteNote}
             />
         </div>
     );

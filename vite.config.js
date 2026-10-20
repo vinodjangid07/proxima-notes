@@ -3,6 +3,10 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 export default defineConfig({
+  server: {
+    host: true,
+    allowedHosts: ['10.58.20.210.nip.io', '.nip.io']
+  },
   plugins: [
     tailwindcss(),
     VitePWA({

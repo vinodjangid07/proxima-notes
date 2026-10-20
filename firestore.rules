@@ -1,0 +1,53 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Notes — users can only read and write their own documents
+    match /Notes/{noteId} {
+      allow read: if request.auth != null
+                  && resource.data.userId == request.auth.uid;
+
+      allow create: if request.auth != null
+                    // The note must belong to the authenticated user
+                    && request.resource.data.userId == request.auth.uid
+                    // Required fields must be present and typed correctly
+                    && request.resource.data.title is string
+                    && request.resource.data.content is string
+                    // Support both ISO string and Firestore timestamp formats
+                    && (request.resource.data.createdAt is string || request.resource.data.createdAt is timestamp)
+                    && (request.resource.data.updatedAt is string || request.resource.data.updatedAt is timestamp)
+                    // Guard against excessively large notes
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.content.size() <= 50000
+                    // Reject documents with unexpected extra fields
+                    && request.resource.data.keys().hasOnly(
+                         ['userId', 'title', 'content', 'createdAt', 'updatedAt']
+                       );
+
+      allow update: if request.auth != null
+                    // Must be the owner of the document
+                    && resource.data.userId == request.auth.uid
+                    // Cannot change the owner or original creation date
+                    && request.resource.data.userId == resource.data.userId
+                    && request.resource.data.createdAt == resource.data.createdAt
+                    // Validate updated fields
+                    && request.resource.data.title is string
+                    && request.resource.data.content is string
+                    && (request.resource.data.updatedAt is string || request.resource.data.updatedAt is timestamp)
+                    && request.resource.data.title.size() <= 200
+                    && request.resource.data.content.size() <= 50000
+                    && request.resource.data.keys().hasOnly(
+                         ['userId', 'title', 'content', 'createdAt', 'updatedAt']
+                       );
+
+      allow delete: if request.auth != null
+                    && resource.data.userId == request.auth.uid;
+    }
+
+    // Deny everything else
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -2,9 +2,9 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
-    <footer className="relative z-10 w-full flex flex-col sm:flex-row items-center justify-between px-6 sm:px-16 py-6 text-xs text-zinc-400 dark:text-zinc-500 bg-white/50 dark:bg-zinc-950/50 backdrop-blur-md gap-4 select-none border-t border-zinc-100/50 dark:border-zinc-900/50">
+    <footer className="relative z-10 w-full flex flex-col sm:flex-row items-center justify-between px-6 sm:px-16 py-6 text-sm text-[#71717a] dark:text-[#a1a1aa] bg-white dark:bg-[#121214] border-t border-[#e4e4e7] dark:border-[#2e2e34] gap-4 select-none font-sans">
       <div className="flex items-center gap-3">
-        <span>© {new Date().getFullYear()} Proxima Notes.</span>
+        <span>© {new Date().getFullYear()} Proxima.</span>
         <span>•</span>
         <span>
           Built by{" "}
@@ -12,7 +12,7 @@ const Footer = () => {
             href="https://github.com/vinodjangid07"
             target="_blank"
             rel="noopener noreferrer"
-            className="underline font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white transition-colors"
+            className="underline font-medium text-[#18181b] dark:text-[#f4f4f5] hover:text-[#5645d4] dark:hover:text-[#8b5cf6] transition-colors"
           >
             Vinod Jangid
           </a>
@@ -22,13 +22,13 @@ const Footer = () => {
       <div className="flex items-center gap-6 font-medium">
         <Link
           to="/privacy"
-          className="hover:text-zinc-950 dark:hover:text-zinc-200 transition-colors"
+          className="hover:text-[#18181b] dark:hover:text-[#f4f4f5] transition-colors"
         >
           Privacy Policy
         </Link>
         <Link
           to="/terms"
-          className="hover:text-zinc-950 dark:hover:text-zinc-200 transition-colors"
+          className="hover:text-[#18181b] dark:hover:text-[#f4f4f5] transition-colors"
         >
           Terms of Service
         </Link>

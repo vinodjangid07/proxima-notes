@@ -5,33 +5,33 @@ import { ArrowLeft, FileText } from "lucide-react";
 
 const Terms = () => {
   return (
-    <div className="relative min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 flex flex-col font-sans overflow-hidden">
+    <div className="relative min-h-screen bg-white dark:bg-[#121214] text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 flex flex-col font-sans">
       <Navbar />
 
       <main className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-6 py-12 sm:py-16 flex flex-col gap-10">
         <div>
           <Link 
             to="/" 
-            className="inline-flex items-center gap-2 text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-[#52525b] hover:text-[#18181b] dark:text-[#a1a1aa] dark:hover:text-white mb-6 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
           </Link>
 
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-2xl bg-zinc-100 dark:bg-zinc-900 flex items-center justify-center text-zinc-700 dark:text-zinc-300">
+            <div className="w-10 h-10 rounded-md bg-[#e6e0f5] dark:bg-[#202024] flex items-center justify-center text-[#5645d4]">
               <FileText className="w-5 h-5" />
             </div>
-            <h1 className="text-3xl sm:text-4xl font-light tracking-tight text-zinc-900 dark:text-zinc-50">
+            <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
               Terms of Service
             </h1>
           </div>
-          <p className="text-xs text-zinc-400 dark:text-zinc-500 font-mono">
-            Last updated: October 7, 2026
+          <p className="text-xs text-[#71717a] dark:text-[#a1a1aa] font-medium">
+            Last updated: October 2026
           </p>
         </div>
 
-        <div className="flex flex-col gap-8 text-sm text-zinc-600 dark:text-zinc-400 leading-relaxed font-normal">
+        <div className="flex flex-col gap-8 text-base text-[#37352f] dark:text-[#d4d4d8] leading-relaxed font-normal">
           <section className="flex flex-col gap-3">
             <h2 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">1. Agreement to Terms</h2>
             <p>

@@ -3,8 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from "firebase/auth";
 import { auth, provider } from "../../lib/firebase";
 import useAuth from "../../context/useAuth";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "react-toastify";
+import BackHomeButton from "../../components/common/BackHomeButton";
+import AuthInput from "../../components/common/AuthInput";
+import AuthDivider from "../../components/common/AuthDivider";
+import GoogleAuthButton from "../../components/common/GoogleAuthButton";
 
 const getAuthErrorMessage = (errorCode) => {
   switch (errorCode) {
@@ -28,7 +32,7 @@ const Signup = () => {
 
     useEffect(() => {
         if (!loading && currentUser) {
-            navigate('/notes', { replace: true });
+            navigate('/notes');
         }
     }, [currentUser, loading, navigate]);
 
@@ -36,7 +40,7 @@ const Signup = () => {
         setIsSubmitting(true);
         signInWithPopup(auth, provider)
             .then(() => {
-                toast.success("Account created!");
+                toast.success("Account created successfully!");
                 navigate('/notes');
             })
             .catch((error) => {
@@ -49,20 +53,20 @@ const Signup = () => {
 
     const handleSignup = (e) => {
         e.preventDefault();
-        const formData = new FormData(e.currentTarget);
-        const name = formData.get("name");
-        const email = formData.get("email");
-        const password = formData.get("password");
+        const name = e.target.name.value.trim();
+        const email = e.target.email.value.trim();
+        const password = e.target.password.value;
 
-        if (!password || password.length < 6) {
-            toast.error("Password must be at least 6 characters.");
+        if (!name || !email || !password) {
+            toast.error("Please fill in all fields.");
             return;
         }
 
         setIsSubmitting(true);
         createUserWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                return updateProfile(userCredential.user, {
+                const user = userCredential.user;
+                return updateProfile(user, {
                     displayName: name
                 });
             })
@@ -79,76 +83,51 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-zinc-950 text-zinc-900 dark:text-zinc-100 transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative">
-            <Link 
-                to="/" 
-                className="absolute top-6 left-6 z-10 flex items-center gap-1.5 bg-zinc-100 dark:bg-zinc-900 px-3.5 py-2 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:text-zinc-950 dark:hover:text-white hover:bg-zinc-200 dark:hover:bg-zinc-800 transition-all select-none"
-            >
-                <ArrowLeft className="w-4 h-4" />
-                <span>Back</span>
-            </Link>
+        <div className="min-h-screen bg-white dark:bg-[#121214] text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
+            <BackHomeButton />
 
-            {/* Left side image */}
-            <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-zinc-950">
+            {/* Left side visual */}
+            <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#18181b]">
                 <img 
                   src="/proxima_centauri.webp" 
-                  alt="Proxima Centauri Inspiring Space Visual" 
+                  alt="Proxima Centauri Space Visual" 
                   className="w-full h-full object-cover select-none pointer-events-none opacity-85" 
                 />
             </div>
 
-            {/* Right side */}
+            {/* Right side form */}
             <main className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
-                <div className="max-w-sm w-full flex flex-col gap-8">
-                    <div className="flex flex-col gap-2 select-none">
-                        <h1 className="text-3xl font-light tracking-tight text-zinc-900 dark:text-zinc-50">Create Account</h1>
-                        <p className="text-sm text-zinc-500 dark:text-zinc-400">Join Proxima and sync your workspace</p>
+                <div className="max-w-sm w-full flex flex-col gap-7">
+                    <div className="flex flex-col gap-1.5 select-none">
+                        <h1 className="text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">Create your account</h1>
+                        <p className="text-sm text-[#52525b] dark:text-[#a1a1aa]">Start taking notes with instant local storage and cloud sync</p>
                     </div>
 
                     <form onSubmit={handleSignup} className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                Full Name
-                            </label>
-                            <input
-                                name="name"
-                                type="text"
-                                placeholder="John Doe"
-                                className="w-full bg-zinc-100 dark:bg-zinc-900/80 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none transition-all"
-                                required
-                            />
-                        </div>
+                        <AuthInput
+                            label="Full Name"
+                            name="name"
+                            placeholder="John Doe"
+                        />
 
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                Email
-                            </label>
-                            <input
-                                name="email"
-                                type="email"
-                                placeholder="name@domain.com"
-                                className="w-full bg-zinc-100 dark:bg-zinc-900/80 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none transition-all"
-                                required
-                            />
-                        </div>
+                        <AuthInput
+                            label="Email"
+                            name="email"
+                            type="email"
+                            placeholder="name@domain.com"
+                        />
 
-                        <div className="flex flex-col gap-1.5">
-                            <label className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
-                                Password
-                            </label>
-                            <input
-                                name="password"
-                                type="password"
-                                placeholder="••••••••"
-                                className="w-full bg-zinc-100 dark:bg-zinc-900/80 rounded-xl px-4 py-3 text-sm text-zinc-900 dark:text-zinc-100 placeholder-zinc-400 dark:placeholder-zinc-600 focus:outline-none transition-all"
-                                required
-                            />
-                        </div>
+                        <AuthInput
+                            label="Password"
+                            name="password"
+                            type="password"
+                            placeholder="••••••••"
+                        />
 
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full bg-zinc-900 hover:bg-zinc-800 dark:bg-zinc-100 dark:hover:bg-zinc-200 text-white dark:text-zinc-950 py-3 rounded-xl font-medium text-xs transition-all cursor-pointer mt-2 active:scale-98 flex items-center justify-center gap-2 select-none"
+                            className="w-full h-11 bg-[#5645d4] hover:bg-[#4534b3] text-white rounded-md font-medium text-sm transition-colors cursor-pointer mt-1 active:scale-98 flex items-center justify-center gap-2 select-none shadow-xs disabled:opacity-60"
                         >
                             {isSubmitting ? (
                                 <>
@@ -161,33 +140,20 @@ const Signup = () => {
                         </button>
                     </form>
 
-                    <div className="relative flex items-center justify-center select-none">
-                        <div className="h-px w-full bg-zinc-200 dark:bg-zinc-800"></div>
-                        <span className="bg-white dark:bg-zinc-950 px-3 text-xs text-zinc-400 dark:text-zinc-500 absolute font-medium">or</span>
-                    </div>
+                    <AuthDivider />
 
-                    <button
-                        type="button"
+                    <GoogleAuthButton
                         disabled={isSubmitting}
                         onClick={handleGoogleLogin}
-                        className="w-full flex items-center justify-center gap-3 bg-zinc-100 dark:bg-zinc-900/80 hover:bg-zinc-200 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 py-3 rounded-xl font-medium text-xs transition-all cursor-pointer select-none"
-                    >
-                        <img
-                            className="w-4.5 h-4.5 shrink-0"
-                            src="https://www.svgrepo.com/show/475656/google-color.svg"
-                            loading="lazy"
-                            alt="Google"
-                        />
-                        <span>Continue with Google</span>
-                    </button>
+                    />
 
-                    <p className="text-xs text-zinc-500 dark:text-zinc-400 text-center">
+                    <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] text-center">
                         Already have an account?{" "}
                         <Link
                             to="/login"
-                            className="font-medium text-zinc-900 dark:text-zinc-100 hover:underline"
+                            className="font-medium text-[#5645d4] hover:underline"
                         >
-                            Log in
+                            Sign in
                         </Link>
                     </p>
                 </div>
