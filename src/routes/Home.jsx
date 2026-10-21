@@ -5,6 +5,7 @@ import { auth, provider } from "../lib/firebase";
 import useAuth from "../context/useAuth";
 import Navbar from "../components/Notes/Navbar";
 import Footer from "../components/Notes/Footer";
+import ThoughtConstellation from "../components/Home/ThoughtConstellation";
 import { 
   ArrowRight, 
   CheckSquare, 
@@ -20,6 +21,7 @@ import {
 const Home = () => {
   const { currentUser } = useAuth();
   const [activeWorkflow, setActiveWorkflow] = useState("structure");
+
   const [tasks, setTasks] = useState([
     { id: 1, text: "Draft launch outline for project", done: true },
     { id: 2, text: "Review notes on mobile offline", done: true },
@@ -68,13 +70,10 @@ const Home = () => {
     <div className="min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
       <Navbar />
 
-      <section className="relative w-full overflow-hidden pt-14 sm:pt-24 pb-20">
-        <div className="max-w-[1200px] mx-auto px-6 relative z-10 flex flex-col items-center text-center">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f0f0f3] dark:bg-[#18181b] border border-[#dcdee0] dark:border-[#27272a] text-xs text-[#60646c] dark:text-[#a0a4ab] mb-8 select-none shadow-xs">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-            <span>Local-first, distraction-free workspace</span>
-          </div>
+      <section className="relative w-full overflow-hidden pt-16 sm:pt-24 pb-20 sm:pb-24">
+        <ThoughtConstellation />
 
+        <div className="max-w-[1200px] mx-auto px-6 relative z-10 flex flex-col items-center text-center">
           <h1 className="text-4xl sm:text-6xl lg:text-[72px] font-semibold tracking-[-2px] text-[#171717] dark:text-white leading-[1.04] max-w-4xl">
             Write at the speed of thought. Never lose an idea.
           </h1>
@@ -87,7 +86,7 @@ const Home = () => {
             {currentUser ? (
               <Link
                 to="/notes"
-                className="h-11 px-7 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-sm active:scale-98"
+                className="h-10 px-6 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1a1a1a] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-lg font-medium text-sm transition-all active:scale-98 shadow-xs"
               >
                 <span>Open Workspace</span>
                 <ArrowRight className="w-4 h-4" />
@@ -96,14 +95,18 @@ const Home = () => {
               <>
                 <button
                   onClick={handleGoogleLogin}
-                  className="h-11 px-7 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-sm cursor-pointer active:scale-98"
+                  className="h-10 px-5 inline-flex items-center gap-2.5 bg-black text-white hover:bg-[#1a1a1a] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-lg font-medium text-sm transition-all cursor-pointer active:scale-98 shadow-xs"
                 >
-                  <span>Get started</span>
-                  <ArrowRight className="w-4 h-4" />
+                  <img
+                    className="w-4 h-4 shrink-0"
+                    src="https://www.svgrepo.com/show/475656/google-color.svg"
+                    alt="Google"
+                  />
+                  <span>Continue with Google</span>
                 </button>
                 <Link
                   to="/notes"
-                  className="h-11 px-6 inline-flex items-center text-sm font-medium text-[#60646c] hover:text-[#171717] dark:text-[#a0a4ab] dark:hover:text-white transition-colors"
+                  className="h-10 px-5 inline-flex items-center text-sm font-medium text-[#60646c] hover:text-[#171717] dark:text-[#a0a4ab] dark:hover:text-white transition-colors"
                 >
                   <span>Try as Guest</span>
                 </Link>
@@ -111,7 +114,7 @@ const Home = () => {
             )}
           </div>
 
-          <div className="mt-16 flex items-center justify-center gap-8 sm:gap-14 flex-wrap text-xs font-medium select-none">
+          <div className="mt-14 flex items-center justify-center gap-8 sm:gap-14 flex-wrap text-xs font-medium select-none">
             <div className="flex items-center gap-2 text-[#60646c] dark:text-[#a0a4ab]">
               <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
               <span>Instant 0ms Load</span>
@@ -132,8 +135,8 @@ const Home = () => {
         </div>
       </section>
 
-      <main className="max-w-[1200px] mx-auto px-6 pb-24 flex flex-col gap-20 w-full">
-        <section className="w-full bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 sm:p-12 shadow-sm dark:shadow-xl">
+      <main className="max-w-[1200px] mx-auto px-6 pb-24 flex flex-col gap-16 w-full">
+        <section className="w-full bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 sm:p-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
             <div className="lg:col-span-5 flex flex-col gap-6">
               <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#171717] dark:text-white">
@@ -147,10 +150,10 @@ const Home = () => {
                     <button
                       key={item.id}
                       onClick={() => setActiveWorkflow(item.id)}
-                      className={`text-left p-4 rounded-2xl transition-all cursor-pointer flex flex-col gap-1.5 ${
+                      className={`text-left p-4 rounded-xl transition-all cursor-pointer flex flex-col gap-1.5 ${
                         isActive
-                          ? "bg-[#f0f0f3] dark:bg-[#222227] text-[#171717] dark:text-white"
-                          : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3]/60 dark:hover:bg-white/5"
+                          ? "bg-white dark:bg-[#1f1f24] text-[#171717] dark:text-white shadow-xs font-medium"
+                          : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5"
                       }`}
                     >
                       <span className={`text-base font-semibold ${isActive ? "text-[#171717] dark:text-white" : "text-[#60646c] dark:text-[#71717a]"}`}>
@@ -167,11 +170,11 @@ const Home = () => {
               </div>
             </div>
 
-            <div className="lg:col-span-7 bg-[#fafafb] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] rounded-2xl p-6 sm:p-8 min-h-[340px] flex flex-col justify-between shadow-xs">
+            <div className="lg:col-span-7 bg-white dark:bg-[#0e0e11] rounded-xl p-6 sm:p-8 min-h-[340px] flex flex-col justify-between">
               <div className="flex items-center justify-between pb-4">
                 <div className="flex items-center gap-2.5">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
-                  <span className="text-xs font-mono text-[#60646c] dark:text-[#a0a4ab]">
+                  <span className="text-xs font-medium text-[#60646c] dark:text-[#a0a4ab]">
                     {activeWorkflow === "capture" && "Instant local draft"}
                     {activeWorkflow === "structure" && "Markdown formatting"}
                     {activeWorkflow === "offline" && "Saved to device • 0ms"}
@@ -190,7 +193,7 @@ const Home = () => {
                     <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
                       Ideas are fragile. If an app takes three seconds to boot, the thought vanishes. Proxima writes directly to your device memory instantly.
                     </p>
-                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-mono mt-2">
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-medium mt-2">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
                       <span>Ready to write • No spinners</span>
                     </div>
@@ -242,7 +245,7 @@ const Home = () => {
                     <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
                       "Simplicity is about subtracting the obvious and adding the meaningful."
                     </p>
-                    <div className="flex items-center gap-2 text-xs font-mono text-[#60646c] dark:text-[#71717a] mt-2 bg-[#f0f0f3] dark:bg-[#18181b] p-2.5 rounded-xl border border-[#dcdee0] dark:border-[#27272a]">
+                    <div className="flex items-center gap-2 text-xs font-medium text-[#60646c] dark:text-[#71717a] mt-2 bg-[#f0f0f3] dark:bg-[#18181b] p-2.5 rounded-lg">
                       <span>proxima export --format markdown</span>
                     </div>
                   </div>
@@ -258,10 +261,10 @@ const Home = () => {
         </section>
 
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
-          <div className="lg:col-span-5 bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xs dark:shadow-lg">
+          <div className="lg:col-span-5 bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 sm:p-10 flex flex-col justify-between">
             <div className="flex flex-col items-center text-center gap-6 my-auto py-4">
-              <div className="w-24 h-24 rounded-3xl bg-[#f0f0f3] dark:bg-[#121214] border border-[#dcdee0] dark:border-[#27272a] p-1 shadow-xs flex items-center justify-center">
-                <img src="/proxima_logo.webp" alt="Proxima" className="w-12 h-12 object-contain invert dark:invert-0" />
+              <div className="w-20 h-20 rounded-2xl bg-[#f0f0f3] dark:bg-[#1c1c21] p-1 flex items-center justify-center">
+                <img src="/proxima_logo.webp" alt="Proxima" className="w-10 h-10 object-contain invert dark:invert-0" />
               </div>
 
               <div>
@@ -279,7 +282,7 @@ const Home = () => {
                 href="https://github.com/vinodjangid07/proxima-notes"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-9 px-5 inline-flex items-center gap-2 rounded-full bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] text-xs font-semibold transition-all active:scale-95 shadow-xs"
+                className="h-9 px-5 inline-flex items-center gap-2 rounded-lg bg-black text-white hover:bg-[#1a1a1a] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] text-xs font-semibold transition-all active:scale-95 shadow-xs"
               >
                 <span>View on GitHub</span>
                 <ArrowRight className="w-3.5 h-3.5" />
@@ -288,7 +291,7 @@ const Home = () => {
           </div>
 
           <div className="lg:col-span-7 flex flex-col gap-6">
-            <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col justify-between shadow-xs dark:shadow-lg min-h-[200px]">
+            <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 flex flex-col justify-between min-h-[200px]">
               <div className="flex items-start justify-between gap-6">
                 <div className="flex flex-col gap-2 max-w-md">
                   <h3 className="text-xl font-semibold tracking-tight text-[#171717] dark:text-white">
@@ -299,7 +302,7 @@ const Home = () => {
                   </p>
                 </div>
 
-                <div className="w-11 h-11 rounded-2xl bg-[#f0f0f3] dark:bg-[#222228] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center text-[#171717] dark:text-white shrink-0 shadow-xs">
+                <div className="w-10 h-10 rounded-xl bg-[#f0f0f3] dark:bg-[#1c1c21] flex items-center justify-center text-[#171717] dark:text-white shrink-0">
                   <Maximize2 className="w-5 h-5 text-current" />
                 </div>
               </div>
@@ -317,11 +320,11 @@ const Home = () => {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-6 flex flex-col justify-between shadow-xs dark:shadow-lg">
+              <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-6 flex flex-col justify-between">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-[#171717] dark:text-white">Interactive Tasks</span>
-                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
                       {completedCount}/{tasks.length} Done
                     </span>
                   </div>
@@ -332,7 +335,7 @@ const Home = () => {
                         key={task.id}
                         type="button"
                         onClick={() => toggleTask(task.id)}
-                        className="flex items-center gap-2.5 p-2 rounded-xl bg-[#f0f0f3] dark:bg-[#111113] hover:bg-[#e4e4e7] dark:hover:bg-[#1a1a1e] text-left transition-colors cursor-pointer select-none text-xs"
+                        className="flex items-center gap-2.5 p-2 rounded-xl bg-white dark:bg-[#1c1c21] hover:bg-black/5 dark:hover:bg-white/5 text-left transition-colors cursor-pointer select-none text-xs"
                       >
                         {task.done ? (
                           <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
@@ -352,11 +355,11 @@ const Home = () => {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-6 flex flex-col justify-between shadow-xs dark:shadow-lg">
+              <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-6 flex flex-col justify-between">
                 <div className="flex flex-col gap-3">
                   <div className="flex items-center justify-between">
                     <span className="text-xs font-semibold text-[#171717] dark:text-white">Zero Lock-In</span>
-                    <span className="text-xs font-mono text-[#60646c] dark:text-[#a0a4ab]">.md files</span>
+                    <span className="text-xs font-medium text-[#60646c] dark:text-[#a0a4ab]">.md files</span>
                   </div>
 
                   <p className="text-xs text-[#60646c] dark:text-[#a0a4ab] leading-relaxed mt-2">
@@ -374,8 +377,8 @@ const Home = () => {
         </section>
 
         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full pt-4">
-          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
-            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+          <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 flex flex-col gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f0f3] dark:bg-[#1c1c21] flex items-center justify-center">
               <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h3 className="text-lg font-semibold text-[#171717] dark:text-white">0ms Instant Capture</h3>
@@ -384,8 +387,8 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
-            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+          <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 flex flex-col gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f0f3] dark:bg-[#1c1c21] flex items-center justify-center">
               <WifiOff className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h3 className="text-lg font-semibold text-[#171717] dark:text-white">True Offline Freedom</h3>
@@ -394,8 +397,8 @@ const Home = () => {
             </p>
           </div>
 
-          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
-            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+          <div className="bg-[#fafafb] dark:bg-[#151518] rounded-2xl p-8 flex flex-col gap-4">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f0f3] dark:bg-[#1c1c21] flex items-center justify-center">
               <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
             </div>
             <h3 className="text-lg font-semibold text-[#171717] dark:text-white">Total Privacy</h3>
@@ -405,7 +408,7 @@ const Home = () => {
           </div>
         </section>
 
-        <section className="w-full bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl py-16 px-8 text-center flex flex-col items-center gap-6 shadow-xs dark:shadow-xl">
+        <section className="w-full bg-[#fafafb] dark:bg-[#151518] rounded-2xl py-16 px-8 text-center flex flex-col items-center gap-6">
           <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#171717] dark:text-white">
             A quiet home for your thoughts.
           </h2>
@@ -414,7 +417,7 @@ const Home = () => {
           </p>
           <Link
             to="/notes"
-            className="h-11 px-8 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-md active:scale-98"
+            className="h-10 px-6 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1a1a1a] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-lg font-medium text-sm transition-all shadow-sm active:scale-98"
           >
             <span>Start Writing Now</span>
             <ArrowRight className="w-4 h-4" />

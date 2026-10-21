@@ -1,0 +1,160 @@
+/* Proxima Minimalist Toast Styling (Design System) */
+
+.Toastify__toast-container {
+  padding: 12px;
+  width: auto;
+  max-width: 420px;
+  z-index: 99999;
+}
+
+@media (max-width: 480px) {
+  .Toastify__toast-container {
+    left: 16px;
+    right: 16px;
+    bottom: 24px;
+    width: auto;
+    margin: 0 auto;
+    padding: 0;
+  }
+}
+
+/* Base Toast Card */
+.proxima-toast,
+.Toastify__toast {
+  min-height: 48px;
+  border-radius: 12px !important;
+  padding: 10px 14px !important;
+  font-family: var(--font-sans, "Inter", -apple-system, BlinkMacSystemFont, sans-serif);
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.4 !important;
+  letter-spacing: -0.01em !important;
+  margin-bottom: 8px !important;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  user-select: none;
+}
+
+/* Light Mode Card */
+:root:not(.dark) .proxima-toast,
+:root:not(.dark) .Toastify__toast {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: #171717 !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
+  box-shadow: 0 10px 25px -4px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Dark Mode Card */
+.dark .proxima-toast,
+.dark .Toastify__toast {
+  background: rgba(22, 22, 26, 0.94) !important;
+  color: #ededed !important;
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
+  box-shadow: 0 16px 36px -6px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.04) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* Toast Body */
+.proxima-toast-body,
+.Toastify__toast-body {
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 10px !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:root:not(.dark) .proxima-toast-body,
+:root:not(.dark) .Toastify__toast-body {
+  color: #171717 !important;
+}
+
+.dark .proxima-toast-body,
+.dark .Toastify__toast-body {
+  color: #ededed !important;
+}
+
+/* Refined Minimalist Icons */
+.Toastify__toast-icon {
+  width: 18px !important;
+  height: 18px !important;
+  margin-inline-end: 8px !important;
+  flex-shrink: 0 !important;
+}
+
+/* Icon Tones */
+.Toastify__toast--success .Toastify__toast-icon svg {
+  fill: #10b981 !important;
+}
+
+.Toastify__toast--error .Toastify__toast-icon svg {
+  fill: #f43f5e !important;
+}
+
+.Toastify__toast--info .Toastify__toast-icon svg {
+  fill: #0ea5e9 !important;
+}
+
+.Toastify__toast--warning .Toastify__toast-icon svg {
+  fill: #f59e0b !important;
+}
+
+/* Hairline Progress Bar */
+.proxima-toast-progress,
+.Toastify__progress-bar {
+  height: 2px !important;
+  opacity: 0.3 !important;
+}
+
+:root:not(.dark) .Toastify__progress-bar {
+  background: #171717 !important;
+}
+
+.dark .Toastify__progress-bar {
+  background: #ffffff !important;
+}
+
+.Toastify__progress-bar--success {
+  background: #10b981 !important;
+}
+
+.Toastify__progress-bar--error {
+  background: #f43f5e !important;
+}
+
+.Toastify__progress-bar--info {
+  background: #0ea5e9 !important;
+}
+
+.Toastify__progress-bar--warning {
+  background: #f59e0b !important;
+}
+
+/* Close Button */
+.Toastify__close-button {
+  align-self: center !important;
+  opacity: 0.4 !important;
+  transition: opacity 0.15s ease, color 0.15s ease !important;
+}
+
+:root:not(.dark) .Toastify__close-button {
+  color: #60646c !important;
+}
+
+:root:not(.dark) .Toastify__close-button:hover {
+  opacity: 1 !important;
+  color: #171717 !important;
+}
+
+.dark .Toastify__close-button {
+  color: #a0a4ab !important;
+}
+
+.dark .Toastify__close-button:hover {
+  opacity: 1 !important;
+  color: #ffffff !important;
+}

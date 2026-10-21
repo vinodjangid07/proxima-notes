@@ -9,7 +9,7 @@ import Login from "./routes/auth/Login";
 import Signup from "./routes/auth/Signup";
 import SidebarLayout from "./components/Notes/SidebarLayout";
 import { AuthProvider } from "./context/AuthContext";
-import { ToastContainer } from "react-toastify";
+import ThemedToastContainer from "./components/common/ThemedToastContainer";
 import "react-toastify/dist/ReactToastify.css";
 import "./App.css";
 
@@ -30,11 +30,7 @@ function App() {
             </Route>
           </Routes>
         </Router>
-        <ToastContainer 
-          position="bottom-right" 
-          autoClose={3000} 
-          theme="colored" 
-        />
+        <ThemedToastContainer />
       </AuthProvider>
     </ThemeProvider>
   );

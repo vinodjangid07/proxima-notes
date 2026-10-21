@@ -9,24 +9,6 @@ import {
 import useAuth from "../context/useAuth";
 import { toast } from "react-toastify";
 
-export const DEFAULT_DEMO_NOTES = [
-    {
-        id: "demo-note-1",
-        userId: "guest",
-        title: "Welcome to Proxima Notes",
-        content: "A distraction-free, local-first workspace with live markdown support.\n\n### Quick Start\n- [x] Create a note without signing up\n- [ ] Try Markdown formatting (**bold**, *italic*, `code`)\n- [ ] Toggle Zen mode using the expand icon in the top right\n- [ ] Sign in to sync across devices in real time\n\n> Simplicity is about subtracting the obvious and adding the meaningful.\n\n#workspace #guide",
-        pinned: true,
-        createdAt: new Date().toISOString()
-    },
-    {
-        id: "demo-note-2",
-        userId: "guest",
-        title: "Markdown & Code Snippet",
-        content: "Proxima Notes formats your code and checklists automatically:\n\n```javascript\nconst workspace = {\n  localFirst: true,\n  realtimeSync: true,\n  zenMode: 'active'\n};\n```\n\nSwitch to **Preview** or **Split** mode above to inspect live formatting.\n\n#snippets #code",
-        pinned: false,
-        createdAt: new Date(Date.now() - 3600000).toISOString()
-    }
-];
 
 const sortNotesDesc = (list) => {
     return [...list].sort((a, b) => {
@@ -133,14 +115,17 @@ export const useNotes = () => {
                             item.payload.title, 
                             item.payload.content, 
                             item.payload.createdAt,
-                            { pinned: Boolean(item.payload.pinned) }
+                            { pinned: Boolean(item.payload.pinned), color: item.payload.color || "default" }
                         );
                     } else if (item.action === "update") {
+                        const extra = {};
+                        if (item.payload?.pinned !== undefined) extra.pinned = item.payload.pinned;
+                        if (item.payload?.color !== undefined) extra.color = item.payload.color;
                         await dbUpdateNote(
                             item.noteId, 
                             item.payload?.title, 
                             item.payload?.content,
-                            item.payload?.pinned !== undefined ? { pinned: item.payload.pinned } : {},
+                            extra,
                             currentUser.uid,
                             item.payload?.createdAt
                         );
@@ -178,25 +163,28 @@ export const useNotes = () => {
 
             if (!currentUser) {
                 try {
+                    // Clean up any previously seeded demo notes from Dexie
+                    const demoNotes = await dbLocal.notes
+                        .filter(n => n.id && n.id.startsWith("demo-note-"))
+                        .toArray();
+                    if (demoNotes.length > 0) {
+                        await dbLocal.notes.bulkDelete(demoNotes.map(n => n.id));
+                    }
+
                     const localNotes = await dbLocal.notes
                         .where("userId")
                         .equals("guest")
                         .toArray();
 
                     if (isMounted) {
-                        if (localNotes.length > 0) {
-                            setNotes(sortNotesDesc(localNotes));
-                        } else {
-                            await dbLocal.notes.bulkPut(DEFAULT_DEMO_NOTES);
-                            setNotes(DEFAULT_DEMO_NOTES);
-                        }
+                        setNotes(sortNotesDesc(localNotes));
                         setSyncStatus(navigator.onLine ? "synced" : "offline");
                         setLoading(false);
                     }
                 } catch (err) {
                     console.error("Failed to read local guest notes from Dexie:", err);
                     if (isMounted) {
-                        setNotes(DEFAULT_DEMO_NOTES);
+                        setNotes([]);
                         setLoading(false);
                     }
                 }
@@ -276,8 +264,21 @@ export const useNotes = () => {
                             lNote => !serverIds.has(lNote.id) && pendingNoteIds.has(lNote.id)
                         );
                         const mergedNotes = [...serverNotes, ...pendingAdds];
+                        const THIRTY_DAYS_MS = 30 * 24 * 60 * 60 * 1000;
+                        const now = Date.now();
+                        const validNotes = [];
+                        for (const n of mergedNotes) {
+                            if (n.deletedAt && (now - new Date(n.deletedAt).getTime() > THIRTY_DAYS_MS)) {
+                                dbLocal.notes.delete(n.id).catch(() => {});
+                                if (currentUser && navigator.onLine) {
+                                    dbDeleteNote(n.id).catch(() => {});
+                                }
+                            } else {
+                                validNotes.push(n);
+                            }
+                        }
 
-                        const sorted = sortNotesDesc(mergedNotes);
+                        const sorted = sortNotesDesc(validNotes);
                         setNotes(sorted);
                         setSyncStatus(pendingNoteIds.size > 0 ? "offline" : "synced");
                         setLoading(false);
@@ -374,49 +375,59 @@ export const useNotes = () => {
         }
     }, [notes]);
 
-    const addNote = useCallback(async (title, content, extra = {}) => {
-        if (!title.trim() && !content.trim()) return null;
+    const addNote = useCallback(async (title = "", content = "", extra = {}) => {
+        const cleanTitle = (title || "").trim();
+        const cleanContent = (content || "").trim();
 
-        const randomId = crypto.randomUUID();
+        const noteId = extra.id || crypto.randomUUID();
         const newNote = {
-            id: randomId,
+            id: noteId,
             userId: currentUser ? currentUser.uid : "guest",
-            title: title.trim(),
-            content: content.trim(),
+            title: cleanTitle,
+            content: cleanContent,
+            color: extra.color || "default",
             pinned: Boolean(extra.pinned),
-            createdAt: new Date().toISOString(),
+            createdAt: extra.createdAt || new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
 
-        setNotes((prev) => sortNotesDesc([newNote, ...prev]));
+        setNotes((prev) => {
+            const exists = prev.some((n) => n.id === noteId);
+            if (exists) {
+                return sortNotesDesc(prev.map((n) => n.id === noteId ? newNote : n));
+            }
+            return sortNotesDesc([newNote, ...prev]);
+        });
         await dbLocal.notes.put(newNote);
 
         if (currentUser) {
             if (navigator.onLine) {
                 setSyncStatus("syncing");
                 dbAddNote(
-                    randomId, 
+                    noteId, 
                     currentUser.uid, 
                     newNote.title, 
                     newNote.content, 
                     newNote.createdAt,
-                    { pinned: newNote.pinned }
+                    { pinned: newNote.pinned, color: newNote.color }
                 )
                     .then(() => setSyncStatus("synced"))
                     .catch(async (err) => {
                         console.error("Online add failed, queuing offline:", err);
-                        await queueOrUpdateSyncAction("add", randomId, newNote);
+                        await queueOrUpdateSyncAction("add", noteId, newNote);
                         refreshPendingCount();
                         setSyncStatus("offline");
                     });
             } else {
-                await queueOrUpdateSyncAction("add", randomId, newNote);
+                await queueOrUpdateSyncAction("add", noteId, newNote);
                 refreshPendingCount();
                 setSyncStatus("offline");
             }
         }
 
-        toast.success("Note added!");
+        if (!extra.silent) {
+            toast.success("Note added!");
+        }
         return newNote;
     }, [currentUser, refreshPendingCount]);
 
@@ -479,46 +490,90 @@ export const useNotes = () => {
         toast.info(newPinned ? "Note pinned to top" : "Note unpinned");
     }, [currentUser, refreshPendingCount]);
 
-    const editNote = useCallback(async (id, newTitle, newContent) => {
+    const editNote = useCallback(async (id, newTitle, newContent, newColor) => {
         const updatedAt = new Date().toISOString();
+        const targetNote = notesRef.current.find(n => n.id === id);
+        const resolvedColor = newColor !== undefined ? newColor : (targetNote?.color || "default");
 
         setNotes((prevList) =>
             prevList.map((note) =>
-                note.id === id ? { ...note, title: newTitle, content: newContent, updatedAt } : note
+                note.id === id ? { ...note, title: newTitle, content: newContent, color: resolvedColor, updatedAt } : note
             )
         );
 
         await dbLocal.notes.update(id, {
             title: newTitle,
             content: newContent,
+            color: resolvedColor,
             updatedAt
         });
 
         if (currentUser) {
             if (navigator.onLine) {
-                dbUpdateNote(id, newTitle, newContent)
+                dbUpdateNote(id, newTitle, newContent, { color: resolvedColor })
                     .catch(async (err) => {
                         console.error("Online update failed, queuing offline:", err);
-                        await queueOrUpdateSyncAction("update", id, { title: newTitle, content: newContent });
+                        await queueOrUpdateSyncAction("update", id, { title: newTitle, content: newContent, color: resolvedColor });
                         refreshPendingCount();
                         setSyncStatus("offline");
                     });
             } else {
-                await queueOrUpdateSyncAction("update", id, { title: newTitle, content: newContent });
+                await queueOrUpdateSyncAction("update", id, { title: newTitle, content: newContent, color: resolvedColor });
                 refreshPendingCount();
                 setSyncStatus("offline");
             }
         }
     }, [currentUser, refreshPendingCount]);
 
-    const deleteNote = useCallback(async (id) => {
+    const trashNote = useCallback(async (id) => {
+        const deletedAt = new Date().toISOString();
+        const target = notesRef.current.find(n => n.id === id);
+        if (!target) return;
+
+        setNotes(prev => prev.map(n => n.id === id ? { ...n, deletedAt } : n));
+        await dbLocal.notes.update(id, { deletedAt });
+
+        if (currentUser) {
+            if (navigator.onLine) {
+                dbUpdateNote(id, target.title, target.content, { deletedAt }, currentUser.uid, target.createdAt)
+                    .catch(async () => {
+                        await queueOrUpdateSyncAction("update", id, { deletedAt });
+                    });
+            } else {
+                await queueOrUpdateSyncAction("update", id, { deletedAt });
+            }
+        }
+        toast.info("Note moved to Trash");
+    }, [currentUser]);
+
+    const restoreNote = useCallback(async (id) => {
+        const target = notesRef.current.find(n => n.id === id);
+        if (!target) return;
+
+        setNotes(prev => prev.map(n => n.id === id ? { ...n, deletedAt: null } : n));
+        await dbLocal.notes.update(id, { deletedAt: null });
+
+        if (currentUser) {
+            if (navigator.onLine) {
+                dbUpdateNote(id, target.title, target.content, { deletedAt: null }, currentUser.uid, target.createdAt)
+                    .catch(async () => {
+                        await queueOrUpdateSyncAction("update", id, { deletedAt: null });
+                    });
+            } else {
+                await queueOrUpdateSyncAction("update", id, { deletedAt: null });
+            }
+        }
+        toast.success("Note restored");
+    }, [currentUser]);
+
+    const permanentlyDeleteNote = useCallback(async (id) => {
         setNotes((prevList) => prevList.filter((note) => note.id !== id));
         await dbLocal.notes.delete(id);
 
         if (currentUser) {
             if (navigator.onLine) {
                 dbDeleteNote(id)
-                    .then(() => toast.success("Note deleted!"))
+                    .then(() => toast.success("Permanently deleted"))
                     .catch(async (err) => {
                         console.error("Online delete failed, queuing offline:", err);
                         await queueOrUpdateSyncAction("delete", id, null);
@@ -529,12 +584,87 @@ export const useNotes = () => {
                 await queueOrUpdateSyncAction("delete", id, null);
                 refreshPendingCount();
                 setSyncStatus("offline");
-                toast.success("Note deleted (queued for cloud sync)");
             }
         } else {
-            toast.success("Note deleted! (locally)");
+            toast.success("Permanently deleted");
         }
     }, [currentUser, refreshPendingCount]);
+
+    const emptyTrash = useCallback(async () => {
+        const trashed = notesRef.current.filter(n => Boolean(n.deletedAt));
+        if (trashed.length === 0) return;
+
+        setNotes(prev => prev.filter(n => !n.deletedAt));
+        for (const n of trashed) {
+            await dbLocal.notes.delete(n.id);
+            if (currentUser) {
+                if (navigator.onLine) {
+                    dbDeleteNote(n.id).catch(() => {});
+                } else {
+                    await queueOrUpdateSyncAction("delete", n.id, null);
+                }
+            }
+        }
+        toast.success("Trash emptied");
+    }, [currentUser]);
+
+    const deleteNote = useCallback(async (id) => {
+        const target = notesRef.current.find(n => n.id === id);
+        if (target?.deletedAt) {
+            await permanentlyDeleteNote(id);
+        } else {
+            await trashNote(id);
+        }
+    }, [permanentlyDeleteNote, trashNote]);
+
+    const exportNotesJson = useCallback(() => {
+        const activeNotes = notesRef.current.filter(n => !n.deletedAt);
+        const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(activeNotes, null, 2));
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `proxima-notes-backup-${new Date().toISOString().slice(0, 10)}.json`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        toast.success(`Exported ${activeNotes.length} notes as JSON`);
+    }, []);
+
+    const exportNotesMarkdown = useCallback(() => {
+        const activeNotes = notesRef.current.filter(n => !n.deletedAt);
+        if (activeNotes.length === 0) {
+            toast.info("No notes to export");
+            return;
+        }
+        const combined = activeNotes.map(n => `# ${n.title || "Untitled"}\n\n*Created: ${new Date(n.createdAt).toLocaleDateString()}*\n\n${n.content || ""}\n\n---\n`).join("\n");
+        const dataStr = "data:text/markdown;charset=utf-8," + encodeURIComponent(combined);
+        const downloadAnchor = document.createElement("a");
+        downloadAnchor.setAttribute("href", dataStr);
+        downloadAnchor.setAttribute("download", `proxima-notes-export-${new Date().toISOString().slice(0, 10)}.md`);
+        document.body.appendChild(downloadAnchor);
+        downloadAnchor.click();
+        downloadAnchor.remove();
+        toast.success(`Exported ${activeNotes.length} notes as Markdown`);
+    }, []);
+
+    const importNotes = useCallback(async (importedNotes) => {
+        if (!Array.isArray(importedNotes) || importedNotes.length === 0) {
+            toast.error("Invalid or empty notes file");
+            return 0;
+        }
+
+        let importedCount = 0;
+        for (const item of importedNotes) {
+            if (!item.title && !item.content) continue;
+            await addNote(item.title || "", item.content || "", {
+                color: item.color || "default",
+                pinned: Boolean(item.pinned),
+                silent: true
+            });
+            importedCount++;
+        }
+        toast.success(`Successfully imported ${importedCount} notes!`);
+        return importedCount;
+    }, [addNote]);
 
     return {
         notes,
@@ -545,6 +675,13 @@ export const useNotes = () => {
         togglePinNote,
         editNote,
         deleteNote,
+        trashNote,
+        restoreNote,
+        permanentlyDeleteNote,
+        emptyTrash,
+        exportNotesJson,
+        exportNotesMarkdown,
+        importNotes,
         retrySync: processSyncQueue
     };
 };

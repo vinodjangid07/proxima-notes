@@ -28,6 +28,8 @@ PHASES.md
 phases.md
 PROJECT_CONTEXT.md
 project_context.md
+DESIGN.md
+design.md
 
 # Firebase / Firestore security rules
 firestore.rules

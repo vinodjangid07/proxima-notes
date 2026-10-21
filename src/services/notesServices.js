@@ -31,6 +31,9 @@ export const subscribeToUserNotes = (userId, onNotesChange, onError) => {
                     id: docSnapshot.id,
                     ...data,
                     pinned: Boolean(data.pinned),
+                    color: data.color || "default",
+                    archived: Boolean(data.archived),
+                    deletedAt: data.deletedAt || null,
                     createdAt: data.createdAt?.toDate 
                         ? data.createdAt.toDate().toISOString() 
                         : (data.createdAt || new Date().toISOString())
@@ -59,6 +62,9 @@ export const dbGetNotes = async (userId) => {
             id: docSnapshot.id,
             ...data,
             pinned: Boolean(data.pinned),
+            color: data.color || "default",
+            archived: Boolean(data.archived),
+            deletedAt: data.deletedAt || null,
             createdAt: data.createdAt?.toDate 
                 ? data.createdAt.toDate().toISOString() 
                 : (data.createdAt || new Date().toISOString())
@@ -75,6 +81,9 @@ export const dbAddNote = async (noteId, userId, title, content, createdAt, extra
         createdAt: createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         pinned: Boolean(extra.pinned),
+        color: extra.color || "default",
+        archived: Boolean(extra.archived),
+        deletedAt: extra.deletedAt || null,
         ...extra
     });
 };
