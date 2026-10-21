@@ -25,12 +25,12 @@ const Profile = () => {
     return null;
   }
 
-  return (
-    <div className="min-h-screen bg-white dark:bg-[#121214] px-6 sm:px-12 py-10 sm:py-16 text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 w-full flex flex-col justify-start items-center font-sans">
+    return (
+    <div className="min-h-screen bg-white dark:bg-[#0e0e11] px-6 sm:px-12 py-10 sm:py-16 text-[#171717] dark:text-[#ededed] transition-colors duration-200 w-full flex flex-col justify-start items-center font-sans">
       <div className="w-full max-w-4xl flex flex-col gap-8 sm:gap-10">
         <Link
           to="/notes"
-          className="inline-flex items-center gap-2 text-sm font-medium text-[#52525b] hover:text-[#18181b] dark:text-[#a1a1aa] dark:hover:text-[#f4f4f5] transition-colors self-start select-none"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[#60646c] hover:text-[#171717] dark:text-[#a0a4ab] dark:hover:text-white transition-colors self-start select-none"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Workspace</span>
@@ -38,9 +38,8 @@ const Profile = () => {
 
         {currentUser ? (
           <div className="flex flex-col w-full gap-8">
-            {/* Profile Header */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-5 pb-6 border-b border-[#e4e4e7] dark:border-[#2e2e34]">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-[#f4f4f5] dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] flex items-center justify-center shrink-0">
+            <div className="rounded-3xl bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-xs">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center shrink-0">
                 {currentUser.photoURL ? (
                   <img
                     src={currentUser.photoURL}
@@ -49,21 +48,20 @@ const Profile = () => {
                     referrerPolicy="no-referrer"
                   />
                 ) : (
-                  <User className="w-8 h-8 text-[#71717a] dark:text-[#a1a1aa]" />
+                  <User className="w-8 h-8 text-[#60646c] dark:text-[#a0a4ab]" />
                 )}
               </div>
 
               <div className="flex flex-col">
-                <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
+                <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#171717] dark:text-white">
                   {currentUser.displayName || "Personal Profile"}
                 </h1>
-                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] mt-1 font-normal">
+                <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] mt-1 font-normal">
                   Manage your synchronized notes workspace and account settings
                 </p>
               </div>
             </div>
 
-            {/* Account Details Cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
               <ProfileStatCard
                 icon={Mail}
@@ -95,11 +93,10 @@ const Profile = () => {
               />
             </div>
 
-            {/* Logout Action */}
-            <div className="pt-4 flex justify-start">
+            <div className="pt-2 flex justify-start">
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center justify-center gap-2 bg-[#ef4444] hover:bg-[#dc2626] text-white px-5 py-2.5 rounded-md font-medium text-sm transition-colors cursor-pointer shadow-xs"
+                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Log Out</span>
@@ -107,7 +104,7 @@ const Profile = () => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-16 rounded-xl bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] text-[#71717a] dark:text-[#a1a1aa]">
+          <div className="text-center py-16 rounded-3xl bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] text-[#60646c] dark:text-[#a0a4ab] shadow-xs">
             Please sign in to view your profile settings.
           </div>
         )}

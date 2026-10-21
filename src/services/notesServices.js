@@ -7,7 +7,6 @@ import {
     deleteDoc, 
     doc, 
     setDoc, 
-    updateDoc,
     onSnapshot 
 } from "firebase/firestore";
 
@@ -31,7 +30,7 @@ export const subscribeToUserNotes = (userId, onNotesChange, onError) => {
                 return {
                     id: docSnapshot.id,
                     ...data,
-                    // Normalize createdAt to ISO string or formatted timestamp
+                    pinned: Boolean(data.pinned),
                     createdAt: data.createdAt?.toDate 
                         ? data.createdAt.toDate().toISOString() 
                         : (data.createdAt || new Date().toISOString())
@@ -59,6 +58,7 @@ export const dbGetNotes = async (userId) => {
         return {
             id: docSnapshot.id,
             ...data,
+            pinned: Boolean(data.pinned),
             createdAt: data.createdAt?.toDate 
                 ? data.createdAt.toDate().toISOString() 
                 : (data.createdAt || new Date().toISOString())
@@ -66,24 +66,30 @@ export const dbGetNotes = async (userId) => {
     });
 };
 
-export const dbAddNote = async (noteId, userId, title, content, createdAt) => {
+export const dbAddNote = async (noteId, userId, title, content, createdAt, extra = {}) => {
     const noteRef = doc(db, 'Notes', noteId);
     await setDoc(noteRef, {
         userId,
         title,
         content,
         createdAt: createdAt || new Date().toISOString(),
-        updatedAt: new Date().toISOString()
+        updatedAt: new Date().toISOString(),
+        pinned: Boolean(extra.pinned),
+        ...extra
     });
 };
 
-export const dbUpdateNote = async (noteId, title, content) => {
+export const dbUpdateNote = async (noteId, title, content, extra = {}, userId = null, createdAt = null) => {
     const noteRef = doc(db, 'Notes', noteId);
-    await updateDoc(noteRef, {
-        title,
-        content,
-        updatedAt: new Date().toISOString()
-    });
+    const updateData = {
+        updatedAt: new Date().toISOString(),
+        ...extra
+    };
+    if (title !== undefined) updateData.title = title;
+    if (content !== undefined) updateData.content = content;
+    if (userId) updateData.userId = userId;
+    if (createdAt) updateData.createdAt = createdAt;
+    await setDoc(noteRef, updateData, { merge: true });
 };
 
 export const dbDeleteNote = async (noteId) => {

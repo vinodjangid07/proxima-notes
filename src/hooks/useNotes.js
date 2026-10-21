@@ -14,33 +14,31 @@ export const DEFAULT_DEMO_NOTES = [
         id: "demo-note-1",
         userId: "guest",
         title: "Welcome to Proxima Notes",
-        content: "A distraction-free, local-first workspace with live markdown support.\n\n### Quick Start\n- [x] Create a note without signing up\n- [ ] Try Markdown formatting (**bold**, *italic*, `code`)\n- [ ] Toggle Zen mode using the expand icon in the top right\n- [ ] Sign in to sync across devices in real time\n\n> Simplicity is about subtracting the obvious and adding the meaningful.",
+        content: "A distraction-free, local-first workspace with live markdown support.\n\n### Quick Start\n- [x] Create a note without signing up\n- [ ] Try Markdown formatting (**bold**, *italic*, `code`)\n- [ ] Toggle Zen mode using the expand icon in the top right\n- [ ] Sign in to sync across devices in real time\n\n> Simplicity is about subtracting the obvious and adding the meaningful.\n\n#workspace #guide",
+        pinned: true,
         createdAt: new Date().toISOString()
     },
     {
         id: "demo-note-2",
         userId: "guest",
         title: "Markdown & Code Snippet",
-        content: "Proxima Notes formats your code and checklists automatically:\n\n```javascript\nconst workspace = {\n  localFirst: true,\n  realtimeSync: true,\n  zenMode: 'active'\n};\n```\n\nSwitch to **Preview** or **Split** mode above to inspect live formatting.",
+        content: "Proxima Notes formats your code and checklists automatically:\n\n```javascript\nconst workspace = {\n  localFirst: true,\n  realtimeSync: true,\n  zenMode: 'active'\n};\n```\n\nSwitch to **Preview** or **Split** mode above to inspect live formatting.\n\n#snippets #code",
+        pinned: false,
         createdAt: new Date(Date.now() - 3600000).toISOString()
     }
 ];
 
 const sortNotesDesc = (list) => {
     return [...list].sort((a, b) => {
+        if (a.pinned && !b.pinned) return -1;
+        if (!a.pinned && b.pinned) return 1;
         const timeA = new Date(a.createdAt || 0).getTime();
         const timeB = new Date(b.createdAt || 0).getTime();
         return timeB - timeA;
     });
 };
 
-/**
- * Intelligent queue coalescing:
- * Ensures only 1 operation exists in syncQueue per noteId.
- * - Editing the same note offline multiple times updates the existing pending edit with the latest payload.
- * - Editing a note created offline updates the pending add's payload.
- * - Deleting a note created offline removes it entirely from syncQueue (never hits cloud).
- */
+// Coalesce offline queue operations per note to avoid redundant sync requests
 const queueOrUpdateSyncAction = async (action, noteId, payload) => {
     try {
         const existingItems = await dbLocal.syncQueue
@@ -52,27 +50,23 @@ const queueOrUpdateSyncAction = async (action, noteId, payload) => {
             const existing = existingItems[0];
             if (existing.action === "add") {
                 if (action === "update") {
-                    // Update the payload of the pending add with latest edits
                     await dbLocal.syncQueue.update(existing.id, {
                         payload: { ...existing.payload, ...payload },
                         timestamp: Date.now()
                     });
                     return;
                 } else if (action === "delete") {
-                    // Created offline and deleted offline: never touch cloud!
                     await dbLocal.syncQueue.delete(existing.id);
                     return;
                 }
             } else if (existing.action === "update") {
                 if (action === "update") {
-                    // Overwrite with the latest update payload
                     await dbLocal.syncQueue.update(existing.id, {
                         payload: { ...existing.payload, ...payload },
                         timestamp: Date.now()
                     });
                     return;
                 } else if (action === "delete") {
-                    // Was updated, now deleted: convert action to delete
                     await dbLocal.syncQueue.update(existing.id, {
                         action: "delete",
                         payload: null,
@@ -81,12 +75,10 @@ const queueOrUpdateSyncAction = async (action, noteId, payload) => {
                     return;
                 }
             } else if (existing.action === "delete") {
-                // Already queued for deletion; ignore subsequent edits
                 return;
             }
         }
 
-        // Add new queue item if no existing operation found
         await dbLocal.syncQueue.add({
             noteId,
             action,
@@ -102,7 +94,7 @@ export const useNotes = () => {
     const { currentUser, loading: authLoading } = useAuth();
     const [notes, setNotes] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [syncStatus, setSyncStatus] = useState("synced"); // 'synced' | 'syncing' | 'offline' | 'error'
+    const [syncStatus, setSyncStatus] = useState("synced");
     const [pendingCount, setPendingCount] = useState(0);
 
     const isOnlineRef = useRef(navigator.onLine);
@@ -111,7 +103,6 @@ export const useNotes = () => {
         notesRef.current = notes;
     }, [notes]);
 
-    // Update pending queue count helper (counts distinct pending notes)
     const refreshPendingCount = useCallback(async () => {
         try {
             const queueItems = await dbLocal.syncQueue.toArray();
@@ -123,7 +114,6 @@ export const useNotes = () => {
         }
     }, []);
 
-    // Process pending offline sync queue
     const processSyncQueue = useCallback(async () => {
         if (!currentUser || !navigator.onLine) return;
         try {
@@ -142,13 +132,17 @@ export const useNotes = () => {
                             currentUser.uid, 
                             item.payload.title, 
                             item.payload.content, 
-                            item.payload.createdAt
+                            item.payload.createdAt,
+                            { pinned: Boolean(item.payload.pinned) }
                         );
                     } else if (item.action === "update") {
                         await dbUpdateNote(
                             item.noteId, 
-                            item.payload.title, 
-                            item.payload.content
+                            item.payload?.title, 
+                            item.payload?.content,
+                            item.payload?.pinned !== undefined ? { pinned: item.payload.pinned } : {},
+                            currentUser.uid,
+                            item.payload?.createdAt
                         );
                     } else if (item.action === "delete") {
                         await dbDeleteNote(item.noteId);
@@ -174,7 +168,6 @@ export const useNotes = () => {
         }
     }, [currentUser]);
 
-    // Initial load & Guest mode handling
     useEffect(() => {
         let isMounted = true;
 
@@ -184,7 +177,6 @@ export const useNotes = () => {
             if (authLoading) return;
 
             if (!currentUser) {
-                // GUEST MODE: Load from Dexie notes where userId is guest
                 try {
                     const localNotes = await dbLocal.notes
                         .where("userId")
@@ -195,7 +187,6 @@ export const useNotes = () => {
                         if (localNotes.length > 0) {
                             setNotes(sortNotesDesc(localNotes));
                         } else {
-                            // Seed default demo notes
                             await dbLocal.notes.bulkPut(DEFAULT_DEMO_NOTES);
                             setNotes(DEFAULT_DEMO_NOTES);
                         }
@@ -219,7 +210,6 @@ export const useNotes = () => {
         };
     }, [currentUser, authLoading]);
 
-    // Authenticated Mode: Migration + Real-Time onSnapshot Subscription
     useEffect(() => {
         if (authLoading || !currentUser) return;
 
@@ -231,7 +221,6 @@ export const useNotes = () => {
             setSyncStatus("syncing");
 
             try {
-                // 1. Check if there are unmigrated guest notes to upload to this account
                 const guestNotes = await dbLocal.notes
                     .where("userId")
                     .equals("guest")
@@ -248,30 +237,26 @@ export const useNotes = () => {
                             currentUser.uid,
                             gNote.title,
                             gNote.content,
-                            gNote.createdAt
+                            gNote.createdAt,
+                            { pinned: Boolean(gNote.pinned) }
                         );
-                        // Update local Dexie record ownership to current user
                         await dbLocal.notes.update(gNote.id, { userId: currentUser.uid });
                     }
                     toast.info(`${unsyncedGuests.length} local note(s) saved to your account!`);
                 }
 
-                // Process any offline queue items
                 await processSyncQueue();
 
-                // 2. Subscribe to real-time Firestore updates (Live multi-device sync)
                 unsubscribeSnapshot = subscribeToUserNotes(
                     currentUser.uid,
                     async (serverNotes) => {
                         if (!isMounted) return;
 
-                        // Bulk put server notes to Dexie
                         if (serverNotes.length > 0) {
                             await dbLocal.notes.bulkPut(serverNotes);
                         }
 
-                        // Remove locally cached notes for this user that were deleted from server,
-                        // but preserve any notes that are currently pending in the offline sync queue
+                        // Purge locally cached notes deleted remotely unless pending in offline queue
                         const serverIds = new Set(serverNotes.map(n => n.id));
                         const localUserNotes = await dbLocal.notes
                             .where("userId")
@@ -287,7 +272,6 @@ export const useNotes = () => {
                             }
                         }
 
-                        // Seamlessly include pending offline notes so they don't flicker during sync
                         const pendingAdds = localUserNotes.filter(
                             lNote => !serverIds.has(lNote.id) && pendingNoteIds.has(lNote.id)
                         );
@@ -325,7 +309,6 @@ export const useNotes = () => {
         };
     }, [currentUser, authLoading, processSyncQueue]);
 
-    // Network connection and logout listeners
     useEffect(() => {
         const handleOnline = () => {
             isOnlineRef.current = true;
@@ -342,7 +325,6 @@ export const useNotes = () => {
         };
 
         const handleLogout = async () => {
-            // Reset to guest demo notes cleanly
             try {
                 const guestNotes = await dbLocal.notes
                     .where("userId")
@@ -386,15 +368,13 @@ export const useNotes = () => {
         };
     }, [currentUser, processSyncQueue]);
 
-    // Keep localStorage in sync as a fallback backup
     useEffect(() => {
         if (notes.length > 0) {
             localStorage.setItem("Notes List", JSON.stringify(notes));
         }
     }, [notes]);
 
-    // Action: Add Note
-    const addNote = useCallback(async (title, content) => {
+    const addNote = useCallback(async (title, content, extra = {}) => {
         if (!title.trim() && !content.trim()) return null;
 
         const randomId = crypto.randomUUID();
@@ -403,20 +383,25 @@ export const useNotes = () => {
             userId: currentUser ? currentUser.uid : "guest",
             title: title.trim(),
             content: content.trim(),
+            pinned: Boolean(extra.pinned),
             createdAt: new Date().toISOString(),
             updatedAt: new Date().toISOString()
         };
 
-        // Optimistic UI update
-        setNotes((prev) => [newNote, ...prev]);
-
-        // Save to Dexie
+        setNotes((prev) => sortNotesDesc([newNote, ...prev]));
         await dbLocal.notes.put(newNote);
 
         if (currentUser) {
             if (navigator.onLine) {
                 setSyncStatus("syncing");
-                dbAddNote(randomId, currentUser.uid, newNote.title, newNote.content, newNote.createdAt)
+                dbAddNote(
+                    randomId, 
+                    currentUser.uid, 
+                    newNote.title, 
+                    newNote.content, 
+                    newNote.createdAt,
+                    { pinned: newNote.pinned }
+                )
                     .then(() => setSyncStatus("synced"))
                     .catch(async (err) => {
                         console.error("Online add failed, queuing offline:", err);
@@ -435,18 +420,74 @@ export const useNotes = () => {
         return newNote;
     }, [currentUser, refreshPendingCount]);
 
-    // Action: Edit Note
+    const togglePinNote = useCallback(async (id) => {
+        const targetNote = notesRef.current.find((n) => n.id === id);
+        if (!targetNote) return;
+
+        const newPinned = !targetNote.pinned;
+        const updatedAt = new Date().toISOString();
+
+        setNotes((prevList) => {
+            const updated = prevList.map((note) =>
+                note.id === id ? { ...note, pinned: newPinned, updatedAt } : note
+            );
+            return sortNotesDesc(updated);
+        });
+
+        await dbLocal.notes.update(id, {
+            pinned: newPinned,
+            updatedAt
+        });
+
+        if (currentUser) {
+            if (navigator.onLine) {
+                setSyncStatus("syncing");
+                dbUpdateNote(
+                    id, 
+                    targetNote.title, 
+                    targetNote.content, 
+                    { pinned: newPinned },
+                    currentUser.uid,
+                    targetNote.createdAt
+                )
+                    .then(() => {
+                        setSyncStatus("synced");
+                    })
+                    .catch(async (err) => {
+                        console.error("Online pin toggle failed, queuing offline:", err);
+                        await queueOrUpdateSyncAction("update", id, { 
+                            title: targetNote.title,
+                            content: targetNote.content,
+                            pinned: newPinned,
+                            createdAt: targetNote.createdAt
+                        });
+                        refreshPendingCount();
+                        setSyncStatus("offline");
+                    });
+            } else {
+                await queueOrUpdateSyncAction("update", id, { 
+                    title: targetNote.title,
+                    content: targetNote.content,
+                    pinned: newPinned,
+                    createdAt: targetNote.createdAt
+                });
+                refreshPendingCount();
+                setSyncStatus("offline");
+            }
+        }
+
+        toast.info(newPinned ? "Note pinned to top" : "Note unpinned");
+    }, [currentUser, refreshPendingCount]);
+
     const editNote = useCallback(async (id, newTitle, newContent) => {
         const updatedAt = new Date().toISOString();
 
-        // Optimistic UI update
         setNotes((prevList) =>
             prevList.map((note) =>
                 note.id === id ? { ...note, title: newTitle, content: newContent, updatedAt } : note
             )
         );
 
-        // Update Dexie
         await dbLocal.notes.update(id, {
             title: newTitle,
             content: newContent,
@@ -470,12 +511,8 @@ export const useNotes = () => {
         }
     }, [currentUser, refreshPendingCount]);
 
-    // Action: Delete Note
     const deleteNote = useCallback(async (id) => {
-        // Optimistic UI update
         setNotes((prevList) => prevList.filter((note) => note.id !== id));
-
-        // Delete from Dexie
         await dbLocal.notes.delete(id);
 
         if (currentUser) {
@@ -505,6 +542,7 @@ export const useNotes = () => {
         syncStatus,
         pendingCount,
         addNote,
+        togglePinNote,
         editNote,
         deleteNote,
         retrySync: processSyncQueue

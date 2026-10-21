@@ -7,9 +7,12 @@ dbLocal.version(1).stores({
   syncQueue: "++id, noteId, action, timestamp"
 });
 
-/**
- * Migration helper: If user previously had notes in localStorage, import them to Dexie.
- */
+dbLocal.version(2).stores({
+  notes: "id, userId, createdAt, updatedAt, pinned",
+  syncQueue: "++id, noteId, action, timestamp"
+});
+
+// Imports legacy localStorage notes to Dexie on first run
 export const migrateFromLocalStorage = async () => {
   try {
     const raw = localStorage.getItem("Notes List");

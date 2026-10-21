@@ -16,7 +16,8 @@ import {
     ListTodo, 
     Code, 
     Quote,
-    Type
+    Type,
+    Pin
 } from "lucide-react";
 import { useDebounce } from "../../hooks/useDebounce";
 import { 
@@ -30,34 +31,29 @@ import ConfirmCard from "./ConfirmCard";
 import ToolbarButton from "./ToolbarButton";
 import EditorTabButton from "./EditorTabButton";
 
-const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
+const NoteModalContent = ({ note, onClose, editNote, deleteNote, togglePinNote }) => {
     const [title, setTitle] = useState(note?.title || "");
     const [content, setContent] = useState(note?.content || "");
     const [copied, setCopied] = useState(false);
     const [saveStatus, setSaveStatus] = useState("Saved");
     const [confirmDelete, setConfirmDelete] = useState(false);
 
-    // Zen Mode (Fullscreen) & View Tabs (edit | preview | split)
     const [isZenMode, setIsZenMode] = useState(false);
-    const [viewTab, setViewTab] = useState("edit"); // "edit" | "preview" | "split"
+    const [viewTab, setViewTab] = useState("edit");
     const [isMonoFont, setIsMonoFont] = useState(false);
 
     const isInitialMount = useRef(true);
     const lastSavedRef = useRef({ title: note?.title || "", content: note?.content || "" });
     const textareaRef = useRef(null);
 
-    // Industry-standard 600ms debounce
     const debouncedTitle = useDebounce(title, 600);
     const debouncedContent = useDebounce(content, 600);
 
-    // Reading time calculation & checklist progress
     const stats = useMemo(() => calculateReadingStats(content), [content]);
     const checklist = useMemo(() => getChecklistProgress(content), [content]);
-
-    // Rendered HTML preview with interactive checkboxes
     const renderedHtml = useMemo(() => renderMarkdown(content), [content]);
 
-    // Save changes immediately if user closes modal before debounce fires
+    // Flush unsaved edits on close before debounce triggers
     const handleSafeClose = useCallback(() => {
         if (
             title !== lastSavedRef.current.title ||
@@ -69,7 +65,6 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
         onClose();
     }, [title, content, note.id, editNote, onClose]);
 
-    // Keyboard shortcut: Escape to close safely (or exit Zen mode first)
     useEffect(() => {
         const handleKeyDown = (e) => {
             if (e.key === "Escape" && !confirmDelete) {
@@ -84,7 +79,6 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
         return () => window.removeEventListener("keydown", handleKeyDown);
     }, [confirmDelete, isZenMode, handleSafeClose]);
 
-    // Debounced Auto-Save
     useEffect(() => {
         if (isInitialMount.current) {
             isInitialMount.current = false;
@@ -102,7 +96,6 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
         }
     }, [debouncedTitle, debouncedContent, note.id, editNote]);
 
-    // Markdown Shortcut Inserter
     const insertMarkdown = useCallback((prefix, suffix = "") => {
         const textarea = textareaRef.current;
         if (!textarea) return;
@@ -128,7 +121,6 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
         }, 0);
     }, [content]);
 
-    // Interactive Checklist Toggle in Preview & Split Views
     const handlePreviewClick = useCallback((e) => {
         const target = e.target;
         if (target && target.tagName === "INPUT" && target.type === "checkbox") {
@@ -184,31 +176,29 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
             />
 
             <div 
-                className={`bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] shadow-[0_16px_48px_-8px_rgba(0,0,0,0.3)] flex flex-col overflow-hidden transition-all duration-200 select-text relative ${
+                className={`bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] shadow-2xl flex flex-col overflow-hidden transition-all duration-200 select-text relative ${
                     isZenMode 
                         ? "w-full h-full rounded-none max-w-none border-none" 
-                        : "w-full max-w-4xl rounded-xl max-h-[90vh] animate-in zoom-in-95 duration-150"
+                        : "w-full max-w-4xl rounded-3xl max-h-[90vh] animate-in zoom-in-95 duration-150"
                 }`}
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Modal Header */}
-                <div className="flex flex-wrap items-center justify-between px-6 sm:px-8 py-3.5 shrink-0 border-b border-[#e4e4e7] dark:border-[#2e2e34] gap-3">
+                <div className="flex flex-wrap items-center justify-between px-6 sm:px-8 py-3.5 shrink-0 border-b border-[#dcdee0] dark:border-[#27272a] gap-3">
                     <div className="flex items-center gap-2.5 sm:gap-3">
-                        <span className="flex items-center gap-1.5 text-xs text-[#71717a] dark:text-[#a1a1aa] font-medium">
+                        <span className="flex items-center gap-1.5 text-xs text-[#60646c] dark:text-[#a0a4ab] font-mono font-medium">
                             <Calendar className="w-3.5 h-3.5" />
                             {formattedDate}
                         </span>
-                        <span className={`text-xs font-semibold px-2.5 py-0.5 rounded-full transition-colors duration-150 ${
+                        <span className={`text-xs font-medium px-2.5 py-0.5 rounded-full border transition-colors duration-150 ${
                             saveStatus === "Saving..." 
-                                ? "bg-[#fef7d6] text-[#793400] dark:bg-[#35250e] dark:text-[#fbbf24]" 
-                                : "bg-[#d9f3e1] text-[#16a34a] dark:bg-[#183324] dark:text-[#4ade80]"
+                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20" 
+                                : "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                         }`}>
                             {saveStatus}
                         </span>
                     </div>
 
-                    {/* Mode tabs */}
-                    <div className="flex items-center bg-[#f4f4f5] dark:bg-[#18181b] border border-[#e4e4e7] dark:border-[#2e2e34] p-1 rounded-full text-xs font-medium">
+                    <div className="flex items-center bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] p-1 rounded-full text-xs font-medium">
                         <EditorTabButton
                             active={viewTab === "edit"}
                             onClick={() => setViewTab("edit")}
@@ -233,53 +223,64 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                         />
                     </div>
 
-                    {/* Actions & Zen Mode Controls */}
                     <div className="flex items-center gap-1">
+                        {togglePinNote && (
+                            <button
+                                onClick={() => togglePinNote(note.id)}
+                                className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer ${
+                                    note.pinned 
+                                        ? "bg-black text-white dark:bg-white dark:text-black shadow-xs font-semibold" 
+                                        : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3] dark:hover:bg-[#222227]"
+                                }`}
+                                title={note.pinned ? "Unpin note" : "Pin note to top"}
+                            >
+                                <Pin className={`w-3.5 h-3.5 ${note.pinned ? "fill-current" : ""}`} />
+                            </button>
+                        )}
                         <button
                             onClick={() => setIsMonoFont(prev => !prev)}
-                            className={`p-1.5 rounded-md text-xs font-mono transition-colors cursor-pointer ${
+                            className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-mono transition-colors cursor-pointer ${
                                 isMonoFont 
-                                    ? "bg-[#18181b] text-white dark:bg-[#f4f4f5] dark:text-[#18181b]" 
-                                    : "text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5] hover:bg-[#f4f4f5] dark:hover:bg-[#27272a]"
+                                    ? "bg-black text-white dark:bg-white dark:text-black shadow-xs font-semibold" 
+                                    : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3] dark:hover:bg-[#222227]"
                             }`}
                             title="Toggle Monospace Font"
                         >
-                            <Type className="w-4 h-4" />
+                            <Type className="w-3.5 h-3.5" />
                         </button>
                         <button
                             onClick={() => setIsZenMode(prev => !prev)}
-                            className="p-1.5 rounded-md text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5] hover:bg-[#f4f4f5] dark:hover:bg-[#27272a] transition-colors cursor-pointer"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3] dark:hover:bg-[#222227] transition-colors cursor-pointer"
                             title={isZenMode ? "Exit Zen Mode (Esc)" : "Zen Fullscreen Mode"}
                         >
-                            {isZenMode ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
+                            {isZenMode ? <Minimize2 className="w-3.5 h-3.5" /> : <Maximize2 className="w-3.5 h-3.5" />}
                         </button>
                         <button
                             onClick={handleCopy}
-                            className="p-1.5 rounded-md text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5] hover:bg-[#f4f4f5] dark:hover:bg-[#27272a] transition-colors cursor-pointer"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3] dark:hover:bg-[#222227] transition-colors cursor-pointer"
                             title="Copy content"
                         >
-                            {copied ? <Check className="w-4 h-4 text-[#16a34a]" /> : <Copy className="w-4 h-4" />}
+                            {copied ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Copy className="w-3.5 h-3.5" />}
                         </button>
                         <button
                             onClick={() => setConfirmDelete(true)}
-                            className="p-1.5 rounded-md text-[#71717a] dark:text-[#a1a1aa] hover:text-[#ef4444] dark:hover:text-[#f87171] hover:bg-[#fee2e2] dark:hover:bg-[#ef4444]/15 transition-colors cursor-pointer"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-[#60646c] dark:text-[#a0a4ab] hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer"
                             title="Delete note"
                         >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-3.5 h-3.5" />
                         </button>
                         <button
                             onClick={handleSafeClose}
-                            className="p-1.5 rounded-md text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5] hover:bg-[#f4f4f5] dark:hover:bg-[#27272a] transition-colors cursor-pointer ml-1"
+                            className="w-8 h-8 rounded-full flex items-center justify-center text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3] dark:hover:bg-[#222227] transition-colors cursor-pointer ml-1"
                             title="Close"
                         >
-                            <X className="w-5 h-5" />
+                            <X className="w-4 h-4" />
                         </button>
                     </div>
                 </div>
 
-                {/* Markdown Quick Formatting Toolbar */}
                 {viewTab !== "preview" && (
-                    <div className="flex items-center gap-1.5 px-6 sm:px-8 py-2 border-b border-[#e4e4e7] dark:border-[#2e2e34] bg-[#f4f4f5] dark:bg-[#18181b] overflow-x-auto select-none">
+                    <div className="flex items-center gap-1.5 px-6 sm:px-8 py-2 border-b border-[#dcdee0] dark:border-[#27272a] bg-[#fafafb] dark:bg-[#111113] overflow-x-auto select-none">
                         <ToolbarButton
                             onClick={() => insertMarkdown("**", "**")}
                             title="Bold (**text**)"
@@ -316,13 +317,12 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                         >
                             <Quote className="w-3.5 h-3.5" />
                         </ToolbarButton>
-                        <span className="text-xs text-[#71717a] dark:text-[#a1a1aa] font-medium pl-2">
+                        <span className="text-xs text-[#60646c] dark:text-[#a0a4ab] font-medium pl-2">
                             Markdown supported
                         </span>
                     </div>
                 )}
 
-                {/* Modal Body */}
                 <div className={`flex-1 overflow-y-auto px-6 sm:px-10 py-5 flex flex-col gap-4 ${
                     isZenMode ? "max-w-4xl mx-auto w-full" : ""
                 }`}>
@@ -336,10 +336,9 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                             }
                         }}
                         placeholder="Untitled Note"
-                        className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5] placeholder-[#a1a1aa] dark:placeholder-[#71717a] focus:outline-none w-full bg-transparent"
+                        className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#171717] dark:text-[#ededed] placeholder-[#a0a4ab] dark:placeholder-[#60646c] focus:outline-none w-full bg-transparent"
                     />
 
-                    {/* Tab Views */}
                     {viewTab === "edit" && (
                         <textarea
                             ref={textareaRef}
@@ -351,7 +350,7 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                                 }
                             }}
                             placeholder="Write in markdown... Use # for headings, - [ ] for checklists, > for quotes, and ``` for code"
-                            className={`text-base text-[#18181b] dark:text-[#e4e4e7] placeholder-[#a1a1aa] dark:placeholder-[#71717a] focus:outline-none w-full bg-transparent resize-none flex-1 min-h-[350px] leading-relaxed font-normal ${
+                            className={`text-base text-[#171717] dark:text-[#ededed] placeholder-[#a0a4ab] dark:placeholder-[#60646c] focus:outline-none w-full bg-transparent resize-none flex-1 min-h-[350px] leading-relaxed font-normal ${
                                 isMonoFont ? "font-mono text-sm leading-relaxed" : ""
                             }`}
                         />
@@ -360,8 +359,8 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                     {viewTab === "preview" && (
                         <div 
                             onClick={handlePreviewClick}
-                            dangerouslySetInnerHTML={{ __html: renderedHtml || '<p class="text-[#71717a] dark:text-[#a1a1aa] italic">No content to preview yet. Switch to Edit to write markdown.</p>' }}
-                            className={`prose-proxima text-base text-[#18181b] dark:text-[#e4e4e7] flex-1 min-h-[350px] select-text ${
+                            dangerouslySetInnerHTML={{ __html: renderedHtml || '<p class="text-[#60646c] dark:text-[#a0a4ab] italic">No content to preview yet. Switch to Edit to write markdown.</p>' }}
+                            className={`prose-proxima text-base text-[#171717] dark:text-[#ededed] flex-1 min-h-[350px] select-text ${
                                 isMonoFont ? "font-mono text-sm" : ""
                             }`}
                         />
@@ -379,14 +378,14 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                                     }
                                 }}
                                 placeholder="Write markdown on the left..."
-                                className={`text-base text-[#18181b] dark:text-[#e4e4e7] placeholder-[#a1a1aa] dark:placeholder-[#71717a] focus:outline-none w-full bg-transparent resize-none leading-relaxed border-r border-[#e4e4e7] dark:border-[#2e2e34] pr-6 ${
+                                className={`text-base text-[#171717] dark:text-[#ededed] placeholder-[#a0a4ab] dark:placeholder-[#60646c] focus:outline-none w-full bg-transparent resize-none leading-relaxed border-r border-[#dcdee0] dark:border-[#2e2e34] pr-6 ${
                                     isMonoFont ? "font-mono text-sm" : ""
                                 }`}
                             />
                             <div 
                                 onClick={handlePreviewClick}
-                                dangerouslySetInnerHTML={{ __html: renderedHtml || '<p class="text-[#71717a] dark:text-[#a1a1aa] italic">Live preview will render here...</p>' }}
-                                className={`prose-proxima text-base text-[#18181b] dark:text-[#e4e4e7] overflow-y-auto select-text ${
+                                dangerouslySetInnerHTML={{ __html: renderedHtml || '<p class="text-[#60646c] dark:text-[#a0a4ab] italic">Live preview will render here...</p>' }}
+                                className={`prose-proxima text-base text-[#171717] dark:text-[#ededed] overflow-y-auto select-text ${
                                     isMonoFont ? "font-mono text-sm" : ""
                                 }`}
                             />
@@ -394,20 +393,19 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
                     )}
                 </div>
 
-                {/* Modal Footer: Reading Time & Task Progress Pill */}
-                <div className="flex flex-wrap items-center justify-between px-6 sm:px-10 py-3 shrink-0 border-t border-[#e4e4e7] dark:border-[#2e2e34] text-xs text-[#52525b] dark:text-[#a1a1aa] font-medium select-none gap-2 bg-[#fafaf9] dark:bg-[#18181b]">
-                    <span className="text-[#52525b] dark:text-[#a1a1aa]">
+                <div className="flex flex-wrap items-center justify-between px-6 sm:px-10 py-3 shrink-0 border-t border-[#dcdee0] dark:border-[#27272a] text-xs text-[#60646c] dark:text-[#a0a4ab] font-medium select-none gap-2 bg-[#fafaf9] dark:bg-[#111113]">
+                    <span className="text-[#60646c] dark:text-[#a0a4ab] font-mono">
                         {stats.readingTime} min read
                     </span>
 
                     {checklist.hasChecklist && (
                         <div className="flex items-center gap-2">
-                            <span className="text-[#18181b] dark:text-[#f4f4f5] font-semibold">
+                            <span className="text-[#171717] dark:text-white font-semibold">
                                 {checklist.completed}/{checklist.total} tasks ({checklist.percent}%)
                             </span>
-                            <div className="w-16 h-1.5 bg-[#e4e4e7] dark:bg-[#2e2e34] rounded-full overflow-hidden">
+                            <div className="w-16 h-1.5 bg-[#dcdee0] dark:bg-[#27272a] rounded-full overflow-hidden">
                                 <div 
-                                    className="h-full bg-[#16a34a] rounded-full transition-all duration-300"
+                                    className="h-full bg-emerald-500 rounded-full transition-all duration-300"
                                     style={{ width: `${checklist.percent}%` }}
                                 />
                             </div>
@@ -419,7 +417,7 @@ const NoteModalContent = ({ note, onClose, editNote, deleteNote }) => {
     );
 };
 
-const NoteModal = ({ note, isOpen, onClose, editNote, deleteNote }) => {
+const NoteModal = ({ note, isOpen, onClose, editNote, deleteNote, togglePinNote }) => {
     if (!isOpen || !note) return null;
 
     return (
@@ -429,6 +427,7 @@ const NoteModal = ({ note, isOpen, onClose, editNote, deleteNote }) => {
             onClose={onClose} 
             editNote={editNote} 
             deleteNote={deleteNote} 
+            togglePinNote={togglePinNote}
         />
     );
 };

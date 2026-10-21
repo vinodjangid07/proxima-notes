@@ -5,10 +5,10 @@ const SidebarNavItem = ({ to, icon: Icon, label, isCollapsed }) => {
         <NavLink
             to={to}
             className={({ isActive }) =>
-                `flex items-center h-10 md:h-11 rounded-md text-sm font-medium transition-all duration-150 w-auto md:w-full select-none overflow-hidden ${
+                `flex items-center h-10 md:h-11 rounded-xl text-sm font-medium transition-all duration-150 w-auto md:w-full select-none overflow-hidden ${
                     isActive
-                        ? "bg-[#f4f4f5] dark:bg-[#1c1c1f] text-[#18181b] dark:text-[#f4f4f5] border border-[#e4e4e7] dark:border-[#2e2e34] shadow-xs font-semibold"
-                        : "text-[#52525b] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5] hover:bg-[#f4f4f5] dark:hover:bg-[#27272a]"
+                        ? "bg-[#f0f0f3] dark:bg-[#161619] text-[#171717] dark:text-[#ffffff] border border-[#dcdee0] dark:border-[#27272a] shadow-xs font-semibold"
+                        : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-[#ffffff] hover:bg-[#f0f0f3] dark:hover:bg-[#161619]/60"
                 }`
             }
         >

@@ -18,7 +18,7 @@ const Sidebar = () => {
 
     return (
         <aside 
-            className={`fixed bottom-0 left-0 right-0 h-16 w-full bg-white dark:bg-[#121214] border-t md:border-t-0 md:border-r border-[#e4e4e7] dark:border-[#2e2e34] flex flex-row justify-between items-center px-4 py-2 z-50 md:relative md:bottom-auto md:left-auto md:right-auto md:h-screen md:flex-col md:items-start md:p-4 transition-all duration-200 ease-in-out font-sans ${
+            className={`fixed bottom-0 left-0 right-0 h-16 w-full bg-white dark:bg-[#0c0c0e] border-t md:border-t-0 md:border-r border-[#dcdee0] dark:border-[#27272a] flex flex-row justify-between items-center px-4 py-2 z-50 md:relative md:bottom-auto md:left-auto md:right-auto md:h-screen md:flex-col md:items-start md:p-4 transition-all duration-200 ease-in-out font-sans ${
                 isCollapsed ? "md:w-18" : "md:w-60"
             }`}
         >

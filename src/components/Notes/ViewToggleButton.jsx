@@ -3,10 +3,10 @@ const ViewToggleButton = ({ active, onClick, icon: Icon, title }) => {
         <button
             type="button"
             onClick={onClick}
-            className={`h-full aspect-square flex items-center justify-center rounded-sm transition-all cursor-pointer ${
+            className={`h-full aspect-square flex items-center justify-center rounded-full transition-all cursor-pointer ${
                 active
-                    ? 'bg-white dark:bg-[#27272a] text-[#18181b] dark:text-[#f4f4f5] shadow-xs font-semibold'
-                    : 'text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5]'
+                    ? 'bg-white dark:bg-[#24242a] text-black dark:text-white shadow-xs font-semibold'
+                    : 'text-[#60646c] dark:text-[#a0a4ab] hover:text-black dark:hover:text-white'
             }`}
             title={title}
         >

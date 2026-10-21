@@ -7,64 +7,87 @@ import Navbar from "../components/Notes/Navbar";
 import Footer from "../components/Notes/Footer";
 import { 
   ArrowRight, 
-  Zap, 
-  WifiOff, 
-  ShieldCheck, 
   CheckSquare, 
-  Square,
-  FileCode2,
-  Search,
-  Check
+  Square, 
+  Maximize2, 
+  WifiOff, 
+  Zap, 
+  ShieldCheck, 
+  FileText,
+  Lock
 } from "lucide-react";
 
 const Home = () => {
   const { currentUser } = useAuth();
-
-  // Interactive checklist in demo card
-  const [demoTasks, setDemoTasks] = useState([
-    { id: 1, text: "Save note locally in IndexedDB (0ms)", completed: true },
-    { id: 2, text: "Buffer rapid keystrokes with 600ms debounce", completed: true },
-    { id: 3, text: "Silently sync to Firestore on reconnect", completed: false },
+  const [activeWorkflow, setActiveWorkflow] = useState("structure");
+  const [tasks, setTasks] = useState([
+    { id: 1, text: "Draft launch outline for project", done: true },
+    { id: 2, text: "Review notes on mobile offline", done: true },
+    { id: 3, text: "Organize weekly reading list", done: false },
+    { id: 4, text: "Export notes to markdown", done: true }
   ]);
 
-  const toggleDemoTask = (id) => {
-    setDemoTasks((prev) =>
-      prev.map((task) =>
-        task.id === id ? { ...task, completed: !task.completed } : task
-      )
+  const toggleTask = (id) => {
+    setTasks((prev) =>
+      prev.map((t) => (t.id === id ? { ...t, done: !t.done } : t))
     );
   };
 
-  const completedCount = demoTasks.filter((t) => t.completed).length;
-  const progressPercent = Math.round((completedCount / demoTasks.length) * 100);
+  const completedCount = tasks.filter((t) => t.done).length;
 
-  const handleLogin = () => {
-    signInWithPopup(auth, provider).catch((error) => {
-      console.error("Login error:", error.message);
+  const handleGoogleLogin = () => {
+    signInWithPopup(auth, provider).catch((err) => {
+      console.error("Login failed:", err.message);
     });
   };
 
+  const workflowItems = [
+    {
+      id: "capture",
+      title: "Draft",
+      desc: "Start writing the moment an idea strikes. Zero loading screens, no spinners, and zero delay between thinking and writing."
+    },
+    {
+      id: "structure",
+      title: "Structure",
+      desc: "Organize your thoughts with frictionless checklists, clear headers, and clean styling. Everything stays readable and structured by default."
+    },
+    {
+      id: "offline",
+      title: "Anywhere",
+      desc: "Write freely on airplanes, in trains, or in Wi-Fi dead zones. Your notes save locally to your device and sync quietly when reconnected."
+    },
+    {
+      id: "retain",
+      title: "Keep Forever",
+      desc: "Your words are stored in open standard markdown. No proprietary walled gardens, no lock-in. You own your notes forever."
+    }
+  ];
+
   return (
-    <div className="min-h-screen bg-white dark:bg-[#121214] text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 flex flex-col font-sans">
+    <div className="min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col font-sans selection:bg-black selection:text-white dark:selection:bg-white dark:selection:text-black">
       <Navbar />
 
-      <main className="flex-1 max-w-5xl mx-auto w-full px-6 pt-16 sm:pt-24 pb-24 flex flex-col items-center">
-        {/* Hero Section */}
-        <div className="text-center flex flex-col items-center max-w-3xl">
-          <h1 className="text-4xl sm:text-6xl md:text-7xl font-semibold tracking-[-0.03em] text-[#18181b] dark:text-[#f4f4f5] leading-[1.08]">
-            Write at the speed of thought. Never wait on a server.
+      <section className="relative w-full overflow-hidden pt-14 sm:pt-24 pb-20">
+        <div className="max-w-[1200px] mx-auto px-6 relative z-10 flex flex-col items-center text-center">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-[#f0f0f3] dark:bg-[#18181b] border border-[#dcdee0] dark:border-[#27272a] text-xs text-[#60646c] dark:text-[#a0a4ab] mb-8 select-none shadow-xs">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+            <span>Local-first, distraction-free workspace</span>
+          </div>
+
+          <h1 className="text-4xl sm:text-6xl lg:text-[72px] font-semibold tracking-[-2px] text-[#171717] dark:text-white leading-[1.04] max-w-4xl">
+            Write at the speed of thought. Never lose an idea.
           </h1>
 
-          <p className="text-base sm:text-lg text-[#52525b] dark:text-[#a1a1aa] mt-6 leading-relaxed max-w-2xl font-normal">
-            Proxima is a local-first workspace engineered for instant capture and pure focus. Every keystroke is saved on your device in zero milliseconds and synchronized silently to the cloud when you're connected.
+          <p className="text-base sm:text-lg text-[#60646c] dark:text-[#a0a4ab] mt-6 max-w-2xl font-normal leading-relaxed">
+            A quiet workspace engineered for instant capture, offline resilience, and pure focus. No server lag, no clutter, and no paywalls.
           </p>
 
-          {/* Action CTAs */}
-          <div className="flex flex-wrap items-center justify-center gap-3 mt-8 w-full">
+          <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
             {currentUser ? (
               <Link
                 to="/notes"
-                className="inline-flex items-center justify-center gap-2 bg-[#5645d4] hover:bg-[#4534b3] text-white px-6 py-3 rounded-md font-medium text-sm transition-colors cursor-pointer shadow-xs"
+                className="h-11 px-7 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-sm active:scale-98"
               >
                 <span>Open Workspace</span>
                 <ArrowRight className="w-4 h-4" />
@@ -72,296 +95,332 @@ const Home = () => {
             ) : (
               <>
                 <button
-                  onClick={handleLogin}
-                  className="inline-flex items-center justify-center gap-2.5 bg-[#5645d4] hover:bg-[#4534b3] text-white px-6 py-3 rounded-md font-medium text-sm transition-colors cursor-pointer shadow-xs"
+                  onClick={handleGoogleLogin}
+                  className="h-11 px-7 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-sm cursor-pointer active:scale-98"
                 >
-                  <img
-                    className="w-4 h-4 shrink-0 bg-white rounded-full p-0.5"
-                    src="https://www.svgrepo.com/show/475656/google-color.svg"
-                    loading="lazy"
-                    alt="Google"
-                  />
-                  <span>Start Free with Google</span>
+                  <span>Get started</span>
+                  <ArrowRight className="w-4 h-4" />
                 </button>
-
                 <Link
                   to="/notes"
-                  className="inline-flex items-center justify-center gap-2 border border-[#e4e4e7] dark:border-[#2e2e34] hover:bg-[#f4f4f5] dark:hover:bg-[#1c1c1f] bg-transparent text-[#18181b] dark:text-[#f4f4f5] px-6 py-3 rounded-md font-medium text-sm transition-colors"
+                  className="h-11 px-6 inline-flex items-center text-sm font-medium text-[#60646c] hover:text-[#171717] dark:text-[#a0a4ab] dark:hover:text-white transition-colors"
                 >
-                  <span>Explore as Guest</span>
+                  <span>Try as Guest</span>
                 </Link>
               </>
             )}
           </div>
 
-          {/* Core Trust Indicators */}
-          <div className="flex flex-wrap items-center justify-center gap-6 mt-8 text-xs text-[#71717a] dark:text-[#a1a1aa] font-medium select-none">
-            <span className="flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-[#5645d4]" />
-              0ms IndexedDB Latency
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <WifiOff className="w-3.5 h-3.5 text-[#5645d4]" />
-              Offline by Default
-            </span>
-            <span>•</span>
-            <span className="flex items-center gap-1.5">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#5645d4]" />
-              End-to-End Private
-            </span>
+          <div className="mt-16 flex items-center justify-center gap-8 sm:gap-14 flex-wrap text-xs font-medium select-none">
+            <div className="flex items-center gap-2 text-[#60646c] dark:text-[#a0a4ab]">
+              <Zap className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Instant 0ms Load</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#60646c] dark:text-[#a0a4ab]">
+              <WifiOff className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Works 100% Offline</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#60646c] dark:text-[#a0a4ab]">
+              <FileText className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Open Markdown</span>
+            </div>
+            <div className="flex items-center gap-2 text-[#60646c] dark:text-[#a0a4ab]">
+              <Lock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+              <span>Private &amp; Ad-Free</span>
+            </div>
           </div>
         </div>
+      </section>
 
-        {/* Hero Workspace Preview */}
-        <div className="w-full max-w-4xl mt-12 sm:mt-16 bg-white dark:bg-[#1c1c1f] rounded-2xl border border-[#e4e4e7] dark:border-[#2e2e34] shadow-[0_16px_40px_rgba(0,0,0,0.06)] dark:shadow-[0_16px_40px_rgba(0,0,0,0.35)] overflow-hidden text-left select-none">
-          {/* Mock Window Top Bar */}
-          <div className="flex items-center justify-between px-5 py-3 border-b border-[#e4e4e7] dark:border-[#2e2e34] bg-[#fafaf9] dark:bg-[#18181b]">
-            <div className="flex items-center gap-2.5">
-              <img src="/proxima_logo.webp" alt="Proxima" className="w-4 h-4 invert dark:invert-0" />
-              <span className="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5]">
-                Architecture-Overview.md
-              </span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[#d9f3e1] dark:bg-[#183324] text-[#16a34a] dark:text-[#4ade80]">
-                <span className="w-1.5 h-1.5 rounded-full bg-[#16a34a]"></span>
-                Synced
-              </span>
-            </div>
-          </div>
-
-          {/* Mock Split Interface */}
-          <div className="grid grid-cols-1 md:grid-cols-12 min-h-[320px]">
-            {/* Mock Left Mini-Sidebar */}
-            <div className="hidden md:flex md:col-span-4 border-r border-[#e4e4e7] dark:border-[#2e2e34] p-4 flex-col gap-3 bg-[#fafaf9] dark:bg-[#18181b]">
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-md text-xs text-[#71717a] dark:text-[#a1a1aa]">
-                <Search className="w-3.5 h-3.5" />
-                <span>Search notes...</span>
-              </div>
-              <div className="flex flex-col gap-1.5 pt-1">
-                <div className="p-2.5 rounded-md bg-white dark:bg-[#27272a] border border-[#e4e4e7] dark:border-[#3f3f46] shadow-xs">
-                  <span className="text-xs font-semibold text-[#18181b] dark:text-[#f4f4f5] block truncate">
-                    Architecture-Overview.md
-                  </span>
-                  <span className="text-[11px] text-[#71717a] dark:text-[#a1a1aa] block truncate mt-0.5">
-                    Local IndexedDB commits...
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-md hover:bg-white/60 dark:hover:bg-[#242429] transition-colors cursor-pointer">
-                  <span className="text-xs font-medium text-[#52525b] dark:text-[#d4d4d8] block truncate">
-                    Offline Queue Spec
-                  </span>
-                  <span className="text-[11px] text-[#71717a] dark:text-[#a1a1aa] block truncate mt-0.5">
-                    Coalescing rapid edits...
-                  </span>
-                </div>
-                <div className="p-2.5 rounded-md hover:bg-white/60 dark:hover:bg-[#242429] transition-colors cursor-pointer">
-                  <span className="text-xs font-medium text-[#52525b] dark:text-[#d4d4d8] block truncate">
-                    Markdown Guidelines
-                  </span>
-                  <span className="text-[11px] text-[#71717a] dark:text-[#a1a1aa] block truncate mt-0.5">
-                    Checklists and task tracking...
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Mock Editor Canvas */}
-            <div className="p-6 sm:p-8 md:col-span-8 flex flex-col gap-4">
-              <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-2 text-xs text-[#71717a] dark:text-[#a1a1aa]">
-                  <span>Oct 2026</span>
-                  <span>•</span>
-                  <span>2 min read</span>
-                </div>
-                <span className="inline-flex items-center gap-1.5 text-xs font-semibold px-2 py-0.5 rounded-sm bg-[#d9f3e1] dark:bg-[#183324] text-[#16a34a] dark:text-[#4ade80]">
-                  <CheckSquare className="w-3.5 h-3.5" />
-                  2/3 tasks
-                </span>
-              </div>
-
-              <h2 className="text-xl sm:text-2xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
-                Local-first systems treat your machine as the source of truth.
+      <main className="max-w-[1200px] mx-auto px-6 pb-24 flex flex-col gap-20 w-full">
+        <section className="w-full bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 sm:p-12 shadow-sm dark:shadow-xl">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+            <div className="lg:col-span-5 flex flex-col gap-6">
+              <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#171717] dark:text-white">
+                How thoughtful writing happens
               </h2>
 
-              <p className="text-sm text-[#52525b] dark:text-[#d4d4d8] leading-relaxed">
-                Traditional cloud note apps force you to wait on network lag. Proxima commits state to IndexedDB in 0ms, queuing mutations locally and pushing to Firestore without interrupting your flow.
-              </p>
-
-              <div className="bg-[#f4f4f5] dark:bg-[#121214] rounded-lg p-3 sm:p-4 text-xs font-mono text-[#18181b] dark:text-[#e4e4e7] flex items-center justify-between">
-                <span>await db.notes.put(&#123; id, title, content &#125;);</span>
-                <span className="text-[#16a34a] dark:text-[#4ade80] font-semibold">0.3ms</span>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Product Pillars Bento Showcase */}
-        <div className="w-full max-w-5xl mt-24 sm:mt-32 flex flex-col gap-10">
-          <div className="flex flex-col gap-2 max-w-xl text-left">
-            <h2 className="text-2xl sm:text-4xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">
-              Engineered for speed, durability, and complete focus.
-            </h2>
-            <p className="text-base text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-              Every architectural decision in Proxima eliminates friction between your thoughts and the screen.
-            </p>
-          </div>
-
-          {/* Asymmetric 2-Column Bento Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-            {/* Card 1: 0ms Local Storage Core */}
-            <div className="bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-xs">
-              <div className="flex flex-col gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f4f4f5] dark:bg-[#27272a] flex items-center justify-center text-[#5645d4]">
-                  <Zap className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
-                  Zero-Latency Local Engine
-                </h3>
-                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-                  Every keystroke, search query, and note switch executes in your browser's IndexedDB. Open 10,000-word notes in 3 milliseconds without network spin wheels.
-                </p>
-              </div>
-
-              <div className="mt-6 pt-5 border-t border-[#f4f4f5] dark:border-[#27272a] flex flex-col gap-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Local Write Latency</span>
-                  <span className="font-mono font-semibold text-[#16a34a] dark:text-[#4ade80]">0.3ms (Instant)</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Full-Text Search</span>
-                  <span className="font-semibold text-[#18181b] dark:text-[#f4f4f5]">On-Device Indexed</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Server Blocking</span>
-                  <span className="font-semibold text-[#16a34a] dark:text-[#4ade80]">Zero</span>
-                </div>
+              <div className="flex flex-col gap-2">
+                {workflowItems.map((item) => {
+                  const isActive = activeWorkflow === item.id;
+                  return (
+                    <button
+                      key={item.id}
+                      onClick={() => setActiveWorkflow(item.id)}
+                      className={`text-left p-4 rounded-2xl transition-all cursor-pointer flex flex-col gap-1.5 ${
+                        isActive
+                          ? "bg-[#f0f0f3] dark:bg-[#222227] text-[#171717] dark:text-white"
+                          : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-[#f0f0f3]/60 dark:hover:bg-white/5"
+                      }`}
+                    >
+                      <span className={`text-base font-semibold ${isActive ? "text-[#171717] dark:text-white" : "text-[#60646c] dark:text-[#71717a]"}`}>
+                        {item.title}
+                      </span>
+                      {isActive && (
+                        <p className="text-xs text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+                          {item.desc}
+                        </p>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
-            {/* Card 2: Offline Resilience */}
-            <div className="bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-xs">
-              <div className="flex flex-col gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f4f4f5] dark:bg-[#27272a] flex items-center justify-center text-[#5645d4]">
-                  <WifiOff className="w-5 h-5" />
-                </div>
-                <h3 className="text-xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
-                  Bulletproof Offline Queue
-                </h3>
-                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-                  Fly across continents or commute through subway dead-zones without anxiety. Changes coalesce in an intelligent offline queue and push silently to Firestore when reconnected.
-                </p>
-              </div>
-
-              <div className="mt-6 pt-5 border-t border-[#f4f4f5] dark:border-[#27272a] flex flex-col gap-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Offline Behavior</span>
-                  <span className="font-semibold text-[#18181b] dark:text-[#f4f4f5]">Full Read &amp; Write</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Rapid Keystroke Buffer</span>
-                  <span className="font-mono font-semibold text-[#18181b] dark:text-[#f4f4f5]">600ms Debounce</span>
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-[#71717a] dark:text-[#a1a1aa]">Conflict Handling</span>
-                  <span className="font-semibold text-[#16a34a] dark:text-[#4ade80]">Non-Blocking Coalesce</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: Interactive Markdown & Tasks */}
-            <div className="bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-xs">
-              <div className="flex flex-col gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f4f4f5] dark:bg-[#27272a] flex items-center justify-center text-[#5645d4]">
-                  <FileCode2 className="w-5 h-5" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
-                    Interactive Task Markdown
-                  </h3>
-                  <span className="text-xs font-semibold px-2 py-0.5 rounded-sm bg-[#d9f3e1] dark:bg-[#183324] text-[#16a34a] dark:text-[#4ade80]">
-                    {completedCount}/{demoTasks.length} ({progressPercent}%)
+            <div className="lg:col-span-7 bg-[#fafafb] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] rounded-2xl p-6 sm:p-8 min-h-[340px] flex flex-col justify-between shadow-xs">
+              <div className="flex items-center justify-between pb-4">
+                <div className="flex items-center gap-2.5">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400"></span>
+                  <span className="text-xs font-mono text-[#60646c] dark:text-[#a0a4ab]">
+                    {activeWorkflow === "capture" && "Instant local draft"}
+                    {activeWorkflow === "structure" && "Markdown formatting"}
+                    {activeWorkflow === "offline" && "Saved to device • 0ms"}
+                    {activeWorkflow === "retain" && "Standard .md format"}
                   </span>
                 </div>
-                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-                  Full GitHub Flavored Markdown with clickable checklists. Toggle Split-screen, preview rendered typography, or enter Zen fullscreen mode.
-                </p>
+                <span className="text-xs text-[#8b8d98] dark:text-[#71717a]">Oct 21, 2026</span>
               </div>
 
-              {/* Clickable interactive task demonstration */}
-              <div className="mt-5 pt-4 border-t border-[#f4f4f5] dark:border-[#27272a] flex flex-col gap-2">
-                <span className="text-[11px] text-[#71717a] dark:text-[#a1a1aa]">Interactive preview — click to toggle:</span>
-                {demoTasks.map((task) => (
-                  <button
-                    key={task.id}
-                    type="button"
-                    onClick={() => toggleDemoTask(task.id)}
-                    className="flex items-center gap-2.5 p-2 rounded-lg bg-[#fafaf9] dark:bg-[#18181b] hover:bg-[#f4f4f5] dark:hover:bg-[#242429] text-left transition-colors cursor-pointer select-none text-xs"
-                  >
-                    {task.completed ? (
-                      <CheckSquare className="w-4 h-4 text-[#16a34a] dark:text-[#4ade80] shrink-0" />
-                    ) : (
-                      <Square className="w-4 h-4 text-[#71717a] dark:text-[#a1a1aa] shrink-0" />
-                    )}
-                    <span className={task.completed ? "line-through text-[#71717a] dark:text-[#a1a1aa]" : "text-[#18181b] dark:text-[#f4f4f5]"}>
-                      {task.text}
-                    </span>
-                  </button>
-                ))}
+              <div className="flex-1 flex flex-col justify-center py-4">
+                {activeWorkflow === "capture" && (
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-xl font-semibold text-[#171717] dark:text-white">
+                      The Architecture of Quiet Thinking
+                    </h3>
+                    <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+                      Ideas are fragile. If an app takes three seconds to boot, the thought vanishes. Proxima writes directly to your device memory instantly.
+                    </p>
+                    <div className="flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-mono mt-2">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse"></span>
+                      <span>Ready to write • No spinners</span>
+                    </div>
+                  </div>
+                )}
+
+                {activeWorkflow === "structure" && (
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-xl font-semibold text-[#171717] dark:text-white">
+                      Weekly Focus &amp; Checklists
+                    </h3>
+                    <div className="flex flex-col gap-2 mt-1">
+                      <div className="flex items-center gap-2.5 text-xs text-[#171717] dark:text-white">
+                        <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Clarify product direction and priorities</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-xs text-[#171717] dark:text-white">
+                        <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        <span>Review notes on mobile offline</span>
+                      </div>
+                      <div className="flex items-center gap-2.5 text-xs text-[#60646c] dark:text-[#a0a4ab]">
+                        <Square className="w-4 h-4 text-[#8b8d98] dark:text-[#71717a] shrink-0" />
+                        <span>Distraction-free deep work session</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeWorkflow === "offline" && (
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-xl font-semibold text-[#171717] dark:text-white">
+                      Notes on Flight #204
+                    </h3>
+                    <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+                      30,000 feet in the air with airplane mode on. Every letter typed is securely saved to your local database immediately.
+                    </p>
+                    <div className="flex items-center gap-2 text-xs text-[#60646c] dark:text-[#71717a] mt-2">
+                      <WifiOff className="w-3.5 h-3.5 text-amber-500 dark:text-amber-400" />
+                      <span>Airplane Mode active • Syncs silently upon reconnect</span>
+                    </div>
+                  </div>
+                )}
+
+                {activeWorkflow === "retain" && (
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-xl font-semibold text-[#171717] dark:text-white">
+                      Reading Highlights.md
+                    </h3>
+                    <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+                      "Simplicity is about subtracting the obvious and adding the meaningful."
+                    </p>
+                    <div className="flex items-center gap-2 text-xs font-mono text-[#60646c] dark:text-[#71717a] mt-2 bg-[#f0f0f3] dark:bg-[#18181b] p-2.5 rounded-xl border border-[#dcdee0] dark:border-[#27272a]">
+                      <span>proxima export --format markdown</span>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex items-center justify-between text-xs text-[#8b8d98] dark:text-[#71717a] pt-3">
+                <span>Reading time: 1 min</span>
+                <span>Auto-saved</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full">
+          <div className="lg:col-span-5 bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 sm:p-10 flex flex-col justify-between shadow-xs dark:shadow-lg">
+            <div className="flex flex-col items-center text-center gap-6 my-auto py-4">
+              <div className="w-24 h-24 rounded-3xl bg-[#f0f0f3] dark:bg-[#121214] border border-[#dcdee0] dark:border-[#27272a] p-1 shadow-xs flex items-center justify-center">
+                <img src="/proxima_logo.webp" alt="Proxima" className="w-12 h-12 object-contain invert dark:invert-0" />
+              </div>
+
+              <div>
+                <h3 className="text-2xl font-semibold tracking-tight text-[#171717] dark:text-white">
+                  Built for Speed
+                </h3>
+                <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed mt-2 max-w-sm">
+                  Captures your thoughts with zero latency and complete data sovereignty. Designed for thinkers, writers, and builders.
+                </p>
               </div>
             </div>
 
-            {/* Card 4: True Privacy & Open Standards */}
-            <div className="bg-white dark:bg-[#1c1c1f] border border-[#e4e4e7] dark:border-[#2e2e34] rounded-2xl p-7 sm:p-8 flex flex-col justify-between shadow-xs">
-              <div className="flex flex-col gap-3">
-                <div className="w-10 h-10 rounded-lg bg-[#f4f4f5] dark:bg-[#27272a] flex items-center justify-center text-[#5645d4]">
-                  <ShieldCheck className="w-5 h-5" />
+            <div className="flex justify-center pt-4">
+              <a
+                href="https://github.com/vinodjangid07/proxima-notes"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="h-9 px-5 inline-flex items-center gap-2 rounded-full bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] text-xs font-semibold transition-all active:scale-95 shadow-xs"
+              >
+                <span>View on GitHub</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </a>
+            </div>
+          </div>
+
+          <div className="lg:col-span-7 flex flex-col gap-6">
+            <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col justify-between shadow-xs dark:shadow-lg min-h-[200px]">
+              <div className="flex items-start justify-between gap-6">
+                <div className="flex flex-col gap-2 max-w-md">
+                  <h3 className="text-xl font-semibold tracking-tight text-[#171717] dark:text-white">
+                    Distraction-free Zen mode
+                  </h3>
+                  <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+                    Designed to keep you in flow. Hide all browser chrome, sidebars, and buttons with a single key for uninterrupted focus.
+                  </p>
                 </div>
-                <h3 className="text-xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
-                  Complete Data Sovereignty
-                </h3>
-                <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-                  Your thoughts belong to you. Proxima contains zero analytics trackers, zero advertising pixels, and saves notes in open, standard markdown format.
+
+                <div className="w-11 h-11 rounded-2xl bg-[#f0f0f3] dark:bg-[#222228] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center text-[#171717] dark:text-white shrink-0 shadow-xs">
+                  <Maximize2 className="w-5 h-5 text-current" />
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between pt-6">
+                <span className="text-xs text-[#8b8d98] dark:text-[#71717a]">Single-key focus</span>
+                <Link
+                  to="/notes"
+                  className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#171717] dark:text-white hover:underline"
+                >
+                  <span>Open Workspace</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-6 flex flex-col justify-between shadow-xs dark:shadow-lg">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#171717] dark:text-white">Interactive Tasks</span>
+                    <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20">
+                      {completedCount}/{tasks.length} Done
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-1.5 mt-2">
+                    {tasks.slice(0, 3).map((task) => (
+                      <button
+                        key={task.id}
+                        type="button"
+                        onClick={() => toggleTask(task.id)}
+                        className="flex items-center gap-2.5 p-2 rounded-xl bg-[#f0f0f3] dark:bg-[#111113] hover:bg-[#e4e4e7] dark:hover:bg-[#1a1a1e] text-left transition-colors cursor-pointer select-none text-xs"
+                      >
+                        {task.done ? (
+                          <CheckSquare className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                        ) : (
+                          <Square className="w-4 h-4 text-[#8b8d98] dark:text-[#71717a] shrink-0" />
+                        )}
+                        <span className={`truncate ${task.done ? "line-through text-[#8b8d98] dark:text-[#71717a]" : "text-[#171717] dark:text-[#ededed]"}`}>
+                          {task.text}
+                        </span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <p className="text-[11px] text-[#8b8d98] dark:text-[#71717a] pt-4">
+                  Checklists auto-save and calculate progress live
                 </p>
               </div>
 
-              <div className="mt-6 pt-5 border-t border-[#f4f4f5] dark:border-[#2e2e34] flex flex-col gap-2.5 text-xs">
-                <div className="flex items-center gap-2 text-[#18181b] dark:text-[#f4f4f5]">
-                  <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
-                  <span>100% on-device private IndexedDB storage</span>
+              <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-6 flex flex-col justify-between shadow-xs dark:shadow-lg">
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-semibold text-[#171717] dark:text-white">Zero Lock-In</span>
+                    <span className="text-xs font-mono text-[#60646c] dark:text-[#a0a4ab]">.md files</span>
+                  </div>
+
+                  <p className="text-xs text-[#60646c] dark:text-[#a0a4ab] leading-relaxed mt-2">
+                    All notes stay in open standard markdown. Copy, export, or open your files in Obsidian, VS Code, or any markdown editor anytime.
+                  </p>
                 </div>
-                <div className="flex items-center gap-2 text-[#18181b] dark:text-[#f4f4f5]">
-                  <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
-                  <span>Zero user telemetry, cookies, or ad trackers</span>
-                </div>
-                <div className="flex items-center gap-2 text-[#18181b] dark:text-[#f4f4f5]">
-                  <Check className="w-3.5 h-3.5 text-[#16a34a] shrink-0" />
-                  <span>Open standard markdown (.md) with zero lock-in</span>
+
+                <div className="flex items-center justify-between text-xs text-emerald-600 dark:text-emerald-400 font-medium pt-4">
+                  <span>Data ownership</span>
+                  <span>100% Yours</span>
                 </div>
               </div>
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Final CTA Banner */}
-        <div className="w-full max-w-5xl mt-24 sm:mt-32 p-8 sm:p-12 rounded-2xl bg-[#fafaf9] dark:bg-[#18181b] border border-[#e4e4e7] dark:border-[#2e2e34] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
-          <div className="flex flex-col gap-2 max-w-xl text-left">
-            <h3 className="text-2xl sm:text-3xl font-semibold text-[#18181b] dark:text-[#f4f4f5] tracking-tight">
-              Start writing at the speed of thought.
-            </h3>
-            <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] leading-relaxed">
-              No server latency, no offline anxiety, no clutter. Open Proxima and write immediately with local-first speed.
+        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full pt-4">
+          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+              <Zap className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#171717] dark:text-white">0ms Instant Capture</h3>
+            <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+              Notes load from your local drive immediately with zero spinners, network latency, or waiting.
             </p>
           </div>
+
+          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+              <WifiOff className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#171717] dark:text-white">True Offline Freedom</h3>
+            <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+              No internet connection required. Work anywhere in the world and sync silently when back online.
+            </p>
+          </div>
+
+          <div className="bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl p-8 flex flex-col gap-4 shadow-xs">
+            <div className="w-10 h-10 rounded-2xl bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <h3 className="text-lg font-semibold text-[#171717] dark:text-white">Total Privacy</h3>
+            <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] leading-relaxed">
+              No trackers, no surveillance capitalism, and no telemetry selling your private notes.
+            </p>
+          </div>
+        </section>
+
+        <section className="w-full bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] rounded-3xl py-16 px-8 text-center flex flex-col items-center gap-6 shadow-xs dark:shadow-xl">
+          <h2 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#171717] dark:text-white">
+            A quiet home for your thoughts.
+          </h2>
+          <p className="text-base text-[#60646c] dark:text-[#a0a4ab] max-w-lg leading-relaxed">
+            Write without interruptions, offline lag, or proprietary walled gardens. Free and open source.
+          </p>
           <Link
             to="/notes"
-            className="inline-flex items-center gap-2 bg-[#5645d4] hover:bg-[#4534b3] text-white px-6 py-3 rounded-md font-medium text-sm transition-colors whitespace-nowrap shrink-0 shadow-xs cursor-pointer"
+            className="h-11 px-8 inline-flex items-center gap-2 bg-black text-white hover:bg-[#1f1f1f] dark:bg-white dark:text-black dark:hover:bg-[#eaeaea] rounded-full font-medium text-sm transition-all shadow-md active:scale-98"
           >
-            <span>Start Writing Free</span>
+            <span>Start Writing Now</span>
             <ArrowRight className="w-4 h-4" />
           </Link>
-        </div>
+        </section>
+
       </main>
 
       <Footer />

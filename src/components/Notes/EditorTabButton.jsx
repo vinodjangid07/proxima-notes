@@ -3,10 +3,10 @@ const EditorTabButton = ({ active, onClick, icon: Icon, label, title, className 
         <button
             type="button"
             onClick={onClick}
-            className={`flex items-center gap-1.5 px-3 py-1 rounded-full transition-all cursor-pointer ${
+            className={`flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs transition-all cursor-pointer ${
                 active
-                    ? "bg-[#18181b] text-white dark:bg-[#f4f4f5] dark:text-[#18181b] shadow-xs font-semibold"
-                    : "text-[#71717a] dark:text-[#a1a1aa] hover:text-[#18181b] dark:hover:text-[#f4f4f5]"
+                    ? "bg-black text-white dark:bg-white dark:text-black shadow-xs font-semibold"
+                    : "text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white"
             } ${className}`}
             title={title}
         >

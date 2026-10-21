@@ -12,10 +12,8 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase App
 const app = initializeApp(firebaseConfig);
 
-// Initialize Services
 export const db = initializeFirestore(app, {
   localCache: persistentLocalCache()
 });

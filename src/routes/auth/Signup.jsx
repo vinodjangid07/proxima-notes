@@ -83,11 +83,10 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#121214] text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
+        <div className="min-h-screen bg-white dark:bg-[#121214] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
             <BackHomeButton />
 
-            {/* Left side visual */}
-            <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#18181b]">
+            <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#171717]">
                 <img 
                   src="/proxima_centauri.webp" 
                   alt="Proxima Centauri Space Visual" 
@@ -95,12 +94,11 @@ const Signup = () => {
                 />
             </div>
 
-            {/* Right side form */}
             <main className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
                 <div className="max-w-sm w-full flex flex-col gap-7">
                     <div className="flex flex-col gap-1.5 select-none">
-                        <h1 className="text-3xl font-semibold tracking-tight text-[#18181b] dark:text-[#f4f4f5]">Create your account</h1>
-                        <p className="text-sm text-[#52525b] dark:text-[#a1a1aa]">Start taking notes with instant local storage and cloud sync</p>
+                        <h1 className="text-3xl font-semibold tracking-tight text-[#171717] dark:text-[#ededed]">Create your account</h1>
+                        <p className="text-sm text-[#60646c] dark:text-[#a0a4ab]">Start taking notes with instant local storage and cloud sync</p>
                     </div>
 
                     <form onSubmit={handleSignup} className="flex flex-col gap-4">
@@ -127,7 +125,7 @@ const Signup = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full h-11 bg-[#5645d4] hover:bg-[#4534b3] text-white rounded-md font-medium text-sm transition-colors cursor-pointer mt-1 active:scale-98 flex items-center justify-center gap-2 select-none shadow-xs disabled:opacity-60"
+                            className="w-full h-11 bg-[#000000] hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-md font-medium text-sm transition-colors cursor-pointer mt-1 active:scale-98 flex items-center justify-center gap-2 select-none shadow-xs disabled:opacity-60"
                         >
                             {isSubmitting ? (
                                 <>
@@ -147,11 +145,11 @@ const Signup = () => {
                         onClick={handleGoogleLogin}
                     />
 
-                    <p className="text-sm text-[#52525b] dark:text-[#a1a1aa] text-center">
+                    <p className="text-sm text-[#60646c] dark:text-[#a0a4ab] text-center">
                         Already have an account?{" "}
                         <Link
                             to="/login"
-                            className="font-medium text-[#5645d4] hover:underline"
+                            className="font-medium text-[#0d74ce] hover:underline"
                         >
                             Sign in
                         </Link>

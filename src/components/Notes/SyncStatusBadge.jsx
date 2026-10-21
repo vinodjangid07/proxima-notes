@@ -4,8 +4,6 @@ import { RefreshCw } from "lucide-react";
 
 const SyncStatusBadge = memo(({ status, pendingCount = 0, onRetry }) => {
     const isOnline = useOnlineStatus();
-
-    // If explicit status is not provided, fall back to simple online/offline
     const effectiveStatus = status || (isOnline ? "synced" : "offline");
 
     if (effectiveStatus === "syncing") {
