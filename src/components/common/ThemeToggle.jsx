@@ -1,14 +1,21 @@
+import { useState, useEffect } from "react";
 import { useTheme } from "next-themes";
 import { Sun, Moon } from "lucide-react";
 
 const ThemeToggle = ({ className = "", iconClassName = "w-4 h-4" }) => {
-  const { setTheme, resolvedTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+  const { theme, setTheme, resolvedTheme } = useTheme();
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const toggleTheme = () => {
-    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+    const current = resolvedTheme || theme || "dark";
+    setTheme(current === "dark" ? "light" : "dark");
   };
 
-  const isDark = resolvedTheme === "dark";
+  const isDark = mounted ? (resolvedTheme === "dark" || theme === "dark") : true;
 
   return (
     <button

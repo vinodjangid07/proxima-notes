@@ -208,7 +208,7 @@ const NoteCard = memo(({
                             {isKebabOpen && (
                                 <div 
                                     onClick={(e) => e.stopPropagation()}
-                                    className="absolute right-0 top-8 w-40 bg-white dark:bg-[#1a1a1f] rounded-xl shadow-xl border border-black/10 dark:border-white/10 py-1 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none text-left"
+                                    className="absolute right-0 top-8 w-40 bg-white dark:bg-[#1a1a1f] rounded-xl shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-1 z-50 animate-in fade-in-50 zoom-in-95 duration-100 select-none text-left"
                                 >
                                     {triggerTogglePin && (
                                         <button

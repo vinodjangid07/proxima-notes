@@ -40,6 +40,16 @@
     @apply bg-zinc-200 dark:bg-zinc-800 text-zinc-950 dark:text-white font-medium shadow-xs;
 }
 
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes marquee-reverse {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0%); }
+}
+
 /* Zen Markdown Prose Styling */
 .prose-proxima {
     line-height: 1.75;

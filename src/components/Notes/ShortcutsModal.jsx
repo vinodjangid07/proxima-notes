@@ -48,7 +48,7 @@ const ShortcutsModal = memo(({ isOpen, onClose }) => {
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-[#151518] w-full max-w-lg rounded-2xl p-6 sm:p-7 flex flex-col gap-6 shadow-2xl animate-in zoom-in-95 duration-150 select-none border border-black/5 dark:border-white/5 max-h-[90vh] overflow-y-auto"
+                className="bg-white dark:bg-[#151518] w-full max-w-lg rounded-2xl p-6 sm:p-7 flex flex-col gap-6 shadow-2xl dark:shadow-[0_25px_60px_rgba(0,0,0,0.6)] animate-in zoom-in-95 duration-150 select-none max-h-[90vh] overflow-y-auto"
             >
                 <div className="flex items-center justify-between pb-1 border-b border-black/5 dark:border-white/5">
                     <div>
@@ -87,7 +87,7 @@ const ShortcutsModal = memo(({ isOpen, onClose }) => {
                                         <div className="flex items-center gap-1 shrink-0">
                                             {item.keys.map((k, idx) => (
                                                 <span key={idx} className="flex items-center gap-1">
-                                                    <kbd className="min-w-6 px-1.5 py-0.5 text-center text-[11px] font-mono font-medium text-[#171717] dark:text-white bg-[#f0f0f3] dark:bg-[#202025] rounded-md border border-black/10 dark:border-white/10 shadow-2xs">
+                                                    <kbd className="min-w-6 px-1.5 py-0.5 text-center text-[11px] font-mono font-medium text-[#171717] dark:text-white bg-[#f0f0f3] dark:bg-[#202025] rounded-md shadow-2xs">
                                                         {k}
                                                     </kbd>
                                                     {idx < item.keys.length - 1 && (

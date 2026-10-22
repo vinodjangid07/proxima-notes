@@ -83,7 +83,7 @@ const Signup = () => {
     };
 
     return (
-        <div className="min-h-screen bg-white dark:bg-[#121214] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
+        <div className="min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
             <BackHomeButton />
 
             <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#171717]">
@@ -125,7 +125,7 @@ const Signup = () => {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="w-full h-11 bg-[#000000] hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-md font-medium text-sm transition-colors cursor-pointer mt-1 active:scale-98 flex items-center justify-center gap-2 select-none shadow-xs disabled:opacity-60"
+                            className="w-full h-11 bg-[#000000] hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-lg font-medium text-sm transition-colors cursor-pointer mt-1 active:scale-98 flex items-center justify-center gap-2 select-none shadow-xs disabled:opacity-60"
                         >
                             {isSubmitting ? (
                                 <>

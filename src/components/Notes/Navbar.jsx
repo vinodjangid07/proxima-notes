@@ -7,7 +7,7 @@ const Navbar = () => {
   const { currentUser } = useAuth();
 
   return (
-    <header className="w-full sticky top-0 z-50 bg-white/95 dark:bg-[#0e0e11]/95 backdrop-blur-md border-b border-black/5 dark:border-white/5 select-none font-sans">
+    <header className="w-full sticky top-0 z-50 bg-white/95 dark:bg-[#0e0e11]/95 backdrop-blur-md select-none font-sans">
       <div className="max-w-[1200px] mx-auto h-16 px-4 sm:px-8 flex items-center justify-between">
         <Link to="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity">
           <img
@@ -61,7 +61,7 @@ const Navbar = () => {
 
               <Link
                 to="/signup"
-                className="h-9 px-4 inline-flex items-center justify-center bg-black hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-lg font-medium text-xs sm:text-sm transition-all shadow-xs active:scale-98"
+                className="h-10 px-4 inline-flex items-center justify-center bg-black hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-lg font-medium text-xs sm:text-sm transition-all shadow-xs active:scale-98"
               >
                 Get Started
               </Link>

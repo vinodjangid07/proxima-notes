@@ -1,24 +1,33 @@
+import { useMemo } from "react";
 import useAuth from "../context/useAuth";
-import { Link } from "react-router-dom";
+import useNotesContext from "../context/useNotesContext";
+import { Link, useNavigate } from "react-router-dom";
 import ProfileStatCard from "../components/common/ProfileStatCard";
 import { User, ArrowLeft, Mail, Calendar, BookOpen, LogOut } from "lucide-react";
+import { toast } from "react-toastify";
 
 const Profile = () => {
   const { currentUser, loading, logout } = useAuth();
+  const { notes } = useNotesContext();
+  const navigate = useNavigate();
 
   const isGoogle = currentUser?.providerData?.some(
     (provider) => provider.providerId === "google.com",
   );
 
-  const notesCount = (() => {
-    const savedNotes = localStorage.getItem("Notes List");
-    return savedNotes ? JSON.parse(savedNotes).length : 0;
-  })();
+  const activeNotesCount = useMemo(() => {
+    return Array.isArray(notes) ? notes.filter((n) => !n.deletedAt).length : 0;
+  }, [notes]);
 
-  const handleLogout = () => {
-    logout();
-    localStorage.removeItem("Notes List");
-    window.dispatchEvent(new Event("local-logout"));
+  const handleLogout = async () => {
+    try {
+      await logout();
+      window.dispatchEvent(new Event("local-logout"));
+      toast.success("Signed out successfully");
+      navigate("/notes");
+    } catch {
+      toast.error("Failed to sign out");
+    }
   };
 
   if (loading) {
@@ -38,8 +47,8 @@ const Profile = () => {
 
         {currentUser ? (
           <div className="flex flex-col w-full gap-8">
-            <div className="rounded-3xl bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-xs">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-[#f0f0f3] dark:bg-[#111113] border border-[#dcdee0] dark:border-[#27272a] flex items-center justify-center shrink-0">
+            <div className="rounded-3xl bg-[#f8f8fa] dark:bg-[#161619] p-6 sm:p-8 flex flex-col sm:flex-row sm:items-center gap-6 shadow-xs">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-2xl overflow-hidden bg-white dark:bg-[#111113] flex items-center justify-center shrink-0 shadow-2xs">
                 {currentUser.photoURL ? (
                   <img
                     src={currentUser.photoURL}
@@ -88,7 +97,7 @@ const Profile = () => {
               <ProfileStatCard
                 icon={BookOpen}
                 label="Workspace Notes"
-                value={`${notesCount} ${notesCount === 1 ? "Note" : "Notes"}`}
+                value={`${activeNotesCount} ${activeNotesCount === 1 ? "Note" : "Notes"}`}
                 subtext="Cached locally & synchronized"
               />
             </div>
@@ -96,7 +105,7 @@ const Profile = () => {
             <div className="pt-2 flex justify-start">
               <button
                 onClick={handleLogout}
-                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-6 py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all cursor-pointer shadow-xs active:scale-95"
+                className="inline-flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-5 py-2.5 rounded-lg font-semibold text-xs sm:text-sm transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <LogOut className="w-4 h-4" />
                 <span>Log Out</span>
@@ -104,8 +113,14 @@ const Profile = () => {
             </div>
           </div>
         ) : (
-          <div className="text-center py-16 rounded-3xl bg-white dark:bg-[#161619] border border-[#dcdee0] dark:border-[#27272a] text-[#60646c] dark:text-[#a0a4ab] shadow-xs">
-            Please sign in to view your profile settings.
+          <div className="text-center py-16 rounded-3xl bg-[#f8f8fa] dark:bg-[#161619] text-[#60646c] dark:text-[#a0a4ab] shadow-xs flex flex-col items-center gap-4">
+            <p className="text-sm">Please sign in to view your profile settings.</p>
+            <Link
+              to="/login"
+              className="h-10 px-5 inline-flex items-center justify-center bg-black hover:bg-[#1a1a1a] text-white dark:bg-white dark:hover:bg-[#f0f0f3] dark:text-[#171717] rounded-lg font-medium text-xs sm:text-sm transition-all shadow-xs active:scale-98"
+            >
+              Sign In
+            </Link>
           </div>
         )}
       </div>

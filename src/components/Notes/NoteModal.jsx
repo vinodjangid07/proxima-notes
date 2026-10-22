@@ -293,7 +293,6 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
         const isMac = typeof navigator !== "undefined" && navigator.platform?.toUpperCase().indexOf("MAC") >= 0;
         const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
 
-        // Save immediately
         if (cmdOrCtrl && e.key.toLowerCase() === "s") {
             e.preventDefault();
             if (!isDraftRef.current && note?.id) {
@@ -303,63 +302,54 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
             return;
         }
 
-        // New Task: Alt + T or Ctrl + Shift + T
         if ((e.altKey && e.key.toLowerCase() === "t") || (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "t")) {
             e.preventDefault();
             insertTask();
             return;
         }
 
-        // Bold: Ctrl + B
         if (cmdOrCtrl && !e.shiftKey && e.key.toLowerCase() === "b") {
             e.preventDefault();
             insertMarkdown("**", "**");
             return;
         }
 
-        // Italic: Ctrl + I
         if (cmdOrCtrl && !e.shiftKey && e.key.toLowerCase() === "i") {
             e.preventDefault();
             insertMarkdown("*", "*");
             return;
         }
 
-        // Strikethrough: Ctrl + Shift + X
         if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "x") {
             e.preventDefault();
             insertMarkdown("~~", "~~");
             return;
         }
 
-        // Code: Ctrl + Shift + C
         if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "c") {
             e.preventDefault();
             insertMarkdown("`", "`");
             return;
         }
 
-        // Quote: Ctrl + Shift + Q
         if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "q") {
             e.preventDefault();
             insertMarkdown("> ");
             return;
         }
 
-        // Heading: Ctrl + Shift + H
         if (cmdOrCtrl && e.shiftKey && e.key.toLowerCase() === "h") {
             e.preventDefault();
             insertMarkdown("## ");
             return;
         }
 
-        // Zen Mode toggle: Alt + Z
         if (e.altKey && e.key.toLowerCase() === "z") {
             e.preventDefault();
             setIsZenMode(prev => !prev);
             return;
         }
 
-        // Auto-continue checklist on Enter
         if (e.key === "Enter" && !e.shiftKey) {
             const textarea = e.currentTarget;
             const pos = textarea.selectionStart;
@@ -372,7 +362,7 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
                 e.preventDefault();
                 const [fullMatch, checkPrefix, checkState, itemText] = checklistMatch;
                 
-                // If the item text is empty, pressing Enter removes the checklist bullet
+                // empty task line clears the checklist bullet on enter
                 if (!itemText.trim()) {
                     const newBefore = content.slice(0, lineStart);
                     const newAfter = content.slice(pos);
@@ -384,7 +374,6 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
                     return;
                 }
 
-                // Otherwise continue checklist on next line
                 const indent = checkPrefix.match(/^\s*/)[0];
                 const newLine = `\n${indent}- [ ] `;
                 const after = content.slice(pos);
@@ -539,7 +528,7 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
                             </button>
 
                             {isKebabOpen && (
-                                <div className="absolute right-0 top-9 w-48 bg-white dark:bg-[#1a1a1f] rounded-xl shadow-xl border border-black/10 dark:border-white/10 py-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100">
+                                <div className="absolute right-0 top-9 w-48 bg-white dark:bg-[#1a1a1f] rounded-xl shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] py-1.5 z-50 animate-in fade-in-50 zoom-in-95 duration-100">
                                     <div className="px-3 py-1.5">
                                         <span className="text-[10px] font-semibold text-[#60646c] dark:text-[#a0a4ab] uppercase tracking-wider block mb-1.5">
                                             Color
@@ -623,7 +612,7 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
                             </button>
 
                             {isColorMenuOpen && (
-                                <div className="absolute right-0 top-9 p-2 bg-white dark:bg-[#1a1a1f] rounded-2xl shadow-xl border border-black/10 dark:border-white/10 z-50 animate-in fade-in-50 zoom-in-95 duration-100 flex items-center gap-1.5">
+                                <div className="absolute right-0 top-9 p-2 bg-white dark:bg-[#1a1a1f] rounded-2xl shadow-xl dark:shadow-[0_10px_30px_rgba(0,0,0,0.5)] z-50 animate-in fade-in-50 zoom-in-95 duration-100 flex items-center gap-1.5">
                                     {NOTE_COLOR_LIST.map((c) => (
                                         <button
                                             key={c.id}
@@ -681,7 +670,7 @@ const NoteModalContent = ({ note, onClose, addNote, editNote, deleteNote, toggle
                 </div>
 
                 {viewTab !== "preview" && (
-                    <div className="flex items-center gap-1 sm:gap-1.5 px-4 sm:px-8 py-2 bg-black/[0.02] dark:bg-black/20 border-y border-black/5 dark:border-white/5 overflow-x-auto scrollbar-none select-none">
+                    <div className="flex items-center gap-1 sm:gap-1.5 px-4 sm:px-8 py-2 bg-black/[0.02] dark:bg-black/20 overflow-x-auto scrollbar-none select-none">
                         <ToolbarButton
                             onClick={() => insertMarkdown("**", "**")}
                             title="Bold (**text**)"

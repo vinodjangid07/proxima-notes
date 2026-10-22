@@ -7,6 +7,7 @@ import NoteModal from "../components/Notes/NoteModal";
 import ShortcutsModal from "../components/Notes/ShortcutsModal";
 import SyncStatusBadge from "../components/Notes/SyncStatusBadge";
 import ViewToggleButton from "../components/Notes/ViewToggleButton";
+import ThemeToggle from "../components/common/ThemeToggle";
 import useNotesContext from "../context/useNotesContext";
 import { useDebounce } from "../hooks/useDebounce";
 import { extractTags, stripMarkdown } from "../lib/markdown";
@@ -48,11 +49,6 @@ const Notes = () => {
     } = useNotesContext();
 
     const { currentUser } = useAuth();
-    const { setTheme, resolvedTheme } = useTheme();
-    const toggleTheme = () => {
-        setTheme(resolvedTheme === "dark" ? "light" : "dark");
-    };
-
     const [searchParams, setSearchParams] = useSearchParams();
     const location = useLocation();
     const activeFilter = searchParams.get("filter");
@@ -123,7 +119,6 @@ const Notes = () => {
             const isMac = typeof navigator !== "undefined" && navigator.platform?.toUpperCase().indexOf("MAC") >= 0;
             const cmdOrCtrl = isMac ? e.metaKey : e.ctrlKey;
 
-            // New Note: Alt + N or Ctrl + N
             if ((e.altKey && e.key.toLowerCase() === "n") || (cmdOrCtrl && !e.shiftKey && e.key.toLowerCase() === "n")) {
                 e.preventDefault();
                 if (!isModalOpen) {
@@ -132,7 +127,6 @@ const Notes = () => {
                 return;
             }
 
-            // Focus search: / or Ctrl + F
             if (!isTyping && e.key === "/") {
                 e.preventDefault();
                 searchInputRef.current?.focus();
@@ -144,21 +138,18 @@ const Notes = () => {
                 return;
             }
 
-            // Shortcuts menu: ? or Shift + /
             if (!isTyping && e.key === "?") {
                 e.preventDefault();
                 setIsShortcutsOpen(prev => !prev);
                 return;
             }
 
-            // Toggle view: Alt + V
             if (e.altKey && e.key.toLowerCase() === "v") {
                 e.preventDefault();
                 setViewMode(prev => prev === "grid" ? "list" : "grid");
                 return;
             }
 
-            // Escape: close shortcuts modal or clear search
             if (e.key === "Escape") {
                 if (isShortcutsOpen) {
                     setIsShortcutsOpen(false);
@@ -313,18 +304,7 @@ const Notes = () => {
                         <HelpCircle className="w-4 h-4" />
                     </button>
 
-                    <button
-                        onClick={toggleTheme}
-                        className="w-8 h-8 flex items-center justify-center rounded-full text-[#60646c] dark:text-[#a0a4ab] hover:text-[#171717] dark:hover:text-white hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
-                        title={resolvedTheme === "dark" ? "Light Mode" : "Dark Mode"}
-                        aria-label="Toggle theme"
-                    >
-                        {resolvedTheme === "dark" ? (
-                            <Sun className="w-4 h-4 text-amber-400" />
-                        ) : (
-                            <Moon className="w-4 h-4 text-zinc-700" />
-                        )}
-                    </button>
+                    <ThemeToggle />
 
                     <Link
                         to="/profile"

@@ -5,7 +5,7 @@ import { ArrowLeft, Shield } from "lucide-react";
 
 const Privacy = () => {
   return (
-    <div className="relative min-h-screen bg-white dark:bg-[#121214] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col font-sans">
+    <div className="relative min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col font-sans">
       <Navbar />
 
       <main className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-6 py-12 sm:py-16 flex flex-col gap-10">
@@ -19,7 +19,7 @@ const Privacy = () => {
           </Link>
 
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-10 h-10 rounded-md bg-[#f0f0f3] dark:bg-[#1a1a1e] border border-[#dcdee0] dark:border-[#2e2e34] flex items-center justify-center text-[#171717] dark:text-[#ededed]">
+            <div className="w-10 h-10 rounded-xl bg-[#f0f0f3] dark:bg-[#1a1a1e] shadow-2xs flex items-center justify-center text-[#171717] dark:text-[#ededed]">
               <Shield className="w-5 h-5" />
             </div>
             <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-[#171717] dark:text-[#ededed]">

@@ -22,7 +22,7 @@ const DeleteModal = memo(({ isOpen, onClose, onConfirm, noteTitle }) => {
         >
             <div 
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white dark:bg-[#151518] w-full max-w-sm rounded-2xl p-6 flex flex-col gap-5 shadow-2xl animate-in zoom-in-95 duration-150 select-none border border-black/5 dark:border-white/5"
+                className="bg-white dark:bg-[#151518] w-full max-w-sm rounded-2xl p-6 flex flex-col gap-5 shadow-2xl dark:shadow-[0_25px_60px_rgba(0,0,0,0.6)] animate-in zoom-in-95 duration-150 select-none"
             >
                 <div className="flex flex-col gap-1.5">
                     <h3 className="text-lg font-semibold tracking-tight text-[#171717] dark:text-white">

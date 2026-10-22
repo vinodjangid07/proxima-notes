@@ -171,7 +171,6 @@ const CommandPalette = ({
         return list.filter(item => item.title.toLowerCase().includes(q) || item.category.toLowerCase().includes(q));
     }, [query, resolvedTheme, viewMode, onCreateNote, setTheme, onToggleViewMode, onSelectFilter, onExportJson, onExportMarkdown, onClose]);
 
-    // Combined items for keyboard navigation
     const allItems = useMemo(() => {
         const combined = [];
         
@@ -281,10 +280,9 @@ const CommandPalette = ({
             />
 
             <div 
-                className="w-full max-w-xl bg-white dark:bg-[#141417] rounded-2xl shadow-2xl overflow-hidden border border-black/10 dark:border-white/10 flex flex-col max-h-[75vh] animate-in zoom-in-95 duration-150"
+                className="w-full max-w-xl bg-white dark:bg-[#141417] rounded-2xl shadow-2xl dark:shadow-[0_25px_70px_rgba(0,0,0,0.6)] overflow-hidden flex flex-col max-h-[75vh] animate-in zoom-in-95 duration-150"
                 onClick={(e) => e.stopPropagation()}
             >
-                {/* Search Bar */}
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-black/5 dark:border-white/5 shrink-0">
                     <Search className="w-4 h-4 text-[#60646c] dark:text-[#a0a4ab] shrink-0" />
                     <input 
@@ -300,7 +298,6 @@ const CommandPalette = ({
                     </kbd>
                 </div>
 
-                {/* Results List */}
                 <div 
                     ref={listRef}
                     className="overflow-y-auto p-2 flex flex-col gap-1 scrollbar-none flex-1"
@@ -311,7 +308,6 @@ const CommandPalette = ({
                         </div>
                     ) : (
                         <>
-                            {/* Notes Section */}
                             {filteredNotes.length > 0 && (
                                 <div className="mb-2">
                                     <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#60646c] dark:text-[#a0a4ab]">
@@ -358,7 +354,6 @@ const CommandPalette = ({
                                 </div>
                             )}
 
-                            {/* Tags Section */}
                             {filteredTags.length > 0 && (
                                 <div className="mb-2">
                                     <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#60646c] dark:text-[#a0a4ab]">
@@ -392,7 +387,6 @@ const CommandPalette = ({
                                 </div>
                             )}
 
-                            {/* Actions Section */}
                             {actions.length > 0 && (
                                 <div>
                                     <div className="px-3 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-[#60646c] dark:text-[#a0a4ab]">
@@ -438,7 +432,6 @@ const CommandPalette = ({
                     )}
                 </div>
 
-                {/* Footer hints */}
                 <div className="flex items-center justify-between px-4 py-2 border-t border-black/5 dark:border-white/5 bg-[#fafafb] dark:bg-[#111113] text-[11px] text-[#60646c] dark:text-[#a0a4ab]">
                     <div className="flex items-center gap-3">
                         <span className="flex items-center gap-1">
