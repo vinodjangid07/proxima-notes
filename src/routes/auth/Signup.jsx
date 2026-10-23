@@ -31,6 +31,7 @@ const Signup = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
+        document.title = "Sign Up — Proxima";
         if (!loading && currentUser) {
             navigate('/notes');
         }

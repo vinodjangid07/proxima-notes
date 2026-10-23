@@ -1,12 +1,16 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import Navbar from "../components/Notes/Navbar";
+import HomeNav from "../components/Home/HomeNav";
 import Footer from "../components/Notes/Footer";
 import { ArrowLeft, Shield } from "lucide-react";
 
 const Privacy = () => {
+  useEffect(() => {
+    document.title = "Privacy Policy — Proxima";
+  }, []);
   return (
     <div className="relative min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col font-sans">
-      <Navbar />
+      <HomeNav />
 
       <main className="relative z-10 flex-1 max-w-3xl mx-auto w-full px-6 py-12 sm:py-16 flex flex-col gap-10">
         <div>

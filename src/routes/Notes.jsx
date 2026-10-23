@@ -60,6 +60,10 @@ const Notes = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
+    useEffect(() => {
+        document.title = "Workspace — Proxima Notes";
+    }, []);
+
     const searchInputRef = useRef(null);
     const debouncedSearchQuery = useDebounce(searchQuery, 200);
 

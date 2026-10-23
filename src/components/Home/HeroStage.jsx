@@ -83,7 +83,7 @@ const HeroStage = () => {
           )}
         </div>
 
-        <div className="relative w-full max-w-[1060px] mt-8 sm:mt-14 select-none">
+        <div className="relative w-full max-w-[1060px] mt-8 sm:mt-14 select-none lg:min-h-[60vh]">
           <div className="relative w-full rounded-2xl bg-[#fafafb] dark:bg-[#151518] shadow-[0_30px_100px_rgba(0,0,0,0.12)] dark:shadow-[0_40px_120px_rgba(0,0,0,0.65)] overflow-hidden">
             <img
               src="/notes-preview-black.webp"

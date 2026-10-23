@@ -35,6 +35,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    document.title = "Sign In — Proxima";
     if (currentUser) {
       navigate('/notes');
     }

@@ -12,7 +12,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: 'inline',
-      includeAssets: ['favicon.ico', 'proxima_logo.webp', 'proxima_centauri.webp'],
+      includeAssets: ['favicon.ico', 'proxima_logo.webp', 'proxima_centauri.webp', 'og-image.jpg', 'robots.txt', 'sitemap.xml'],
       manifest: {
         name: 'Proxima Notes',
         short_name: 'Proxima',

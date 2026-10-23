@@ -23,6 +23,12 @@ const HomeFooter = () => {
             Workspace
           </Link>
           <Link
+            to="/login"
+            className="hover:text-[#171717] dark:hover:text-white transition-colors"
+          >
+            Sign in
+          </Link>
+          <Link
             to="/privacy"
             className="hover:text-[#171717] dark:hover:text-white transition-colors"
           >

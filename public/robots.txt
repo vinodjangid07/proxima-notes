@@ -1,0 +1,8 @@
+# https://proxima.vinodjangid.site/robots.txt
+User-agent: *
+Allow: /
+Disallow: /profile
+Disallow: /login
+Disallow: /signup
+
+Sitemap: https://proxima.vinodjangid.site/sitemap.xml
