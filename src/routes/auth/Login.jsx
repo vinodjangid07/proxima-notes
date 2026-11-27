@@ -35,7 +35,7 @@ const Login = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Sign In — Proxima";
+    document.title = "Sign In | Proxima";
     if (currentUser) {
       navigate('/notes');
     }
@@ -82,17 +82,22 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-white dark:bg-[#0e0e11] text-[#18181b] dark:text-[#f4f4f5] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
       <BackHomeButton />
 
       <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#18181b]">
         <img 
           src="/proxima_centauri.webp" 
-          alt="Proxima Centauri Space Visual" 
+          alt="Proxima Centauri starfield background" 
+          width="940"
+          height="940"
           className="w-full h-full object-cover select-none pointer-events-none opacity-85" 
         />
       </div>
 
-      <main className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
+      <main id="main" tabIndex={-1} className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
         <div className="max-w-sm w-full flex flex-col gap-7">
           <div className="flex flex-col gap-1.5 select-none">
             <h1 className="text-3xl font-semibold tracking-tight text-[#171717] dark:text-[#ffffff]">Welcome back</h1>

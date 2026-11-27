@@ -1,26 +1,39 @@
 import { Link } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { HOME_SITE } from "../../data/homeContent";
 
 const FinalCTA = () => {
   return (
-    <section className="relative w-full py-14 sm:py-32 overflow-hidden select-none flex flex-col items-center">
-      <div className="max-w-[1200px] mx-auto px-6 text-center flex flex-col items-center relative z-10">
-        <h2 className="text-3xl sm:text-5xl lg:text-[56px] font-semibold tracking-[-1.5px] leading-[1.08] text-[#171717] dark:text-white max-w-2xl text-balance">
-          Start writing in seconds.
-        </h2>
-        
-        <p className="text-sm sm:text-base text-[#60646c] dark:text-[#a0a4ab] mt-4 max-w-lg leading-relaxed text-balance">
-          No sign-up wall, no subscriptions, no delay. Open your local workspace and let your thoughts flow.
-        </p>
+    <section className="w-full py-24 sm:py-36 lg:py-44">
+      <div className="max-w-[1440px] mx-auto px-5 sm:px-8 lg:px-12">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
+          <div className="lg:col-span-8">
+            <h2
+              data-split="lines"
+              className="t-display-hero text-[#141416] dark:text-[#f4f4f2] max-w-[14ch]"
+            >
+              {HOME_SITE.finalCta.heading}
+            </h2>
+          </div>
 
-        <div className="flex items-center gap-4 mt-8 flex-wrap justify-center">
-          <Link
-            to="/notes"
-            className="h-10 px-6 inline-flex items-center gap-2 rounded-lg text-sm font-medium bg-black text-white hover:bg-[#1a1a1a] dark:bg-white dark:text-black dark:hover:bg-[#f0f0f0] transition-all active:scale-98 shadow-xs"
+          <div
+            data-reveal="up"
+            className="lg:col-span-4 flex flex-col items-start gap-6"
           >
-            <span>Open workspace</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
+            <p className="text-base sm:text-[17px] text-[#565961] dark:text-[#a1a4ab] leading-relaxed max-w-[36ch]">
+              {HOME_SITE.finalCta.body}
+            </p>
+
+            <Link
+              to="/notes"
+              data-fill
+              data-magnetic="0.18"
+              className="flood-btn flood-btn--solid group h-11 px-6 inline-flex items-center gap-2.5 rounded-lg text-sm font-medium"
+            >
+              <span className="flood-btn__fill" aria-hidden="true" />
+              <span>{HOME_SITE.finalCta.cta}</span>
+              <span className="arrow-nudge" aria-hidden="true">→</span>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

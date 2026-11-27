@@ -1,8 +1,31 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <style>
+      html { background-color: #faf9f6; color: #141416; }
+      html.dark { background-color: #09090b; color: #f4f4f2; }
+      html.preload, html.preload * { transition: none !important; }
+    </style>
+    <script>
+      (function () {
+        try {
+          var de = document.documentElement;
+          de.classList.add('js', 'preload');
+          if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+            de.classList.add('motion');
+          }
+          var t = localStorage.getItem('theme');
+          if (t === 'light' || (!t && window.matchMedia('(prefers-color-scheme: light)').matches)) {
+            de.classList.remove('dark');
+          } else {
+            de.classList.add('dark');
+          }
+        } catch (_) {}
+      })();
+    </script>
 
     <!-- Primary Meta Tags -->
     <title>Proxima | Local-First Workspace</title>
@@ -18,16 +41,20 @@
     <link rel="icon" type="image/x-icon" href="/favicon.ico" />
     <link rel="apple-touch-icon" sizes="192x192" href="/proxima_logo.webp" />
 
+    <!-- Preload critical display and body font subsets -->
+    <link rel="preload" href="/fonts/switzer-400-normal.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/switzer-600-normal.woff2" as="font" type="font/woff2" crossorigin />
+
     <!-- Theme Color -->
-    <meta name="theme-color" content="#0e0e11" media="(prefers-color-scheme: dark)" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#09090b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#faf9f6" media="(prefers-color-scheme: light)" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Proxima" />
     <meta property="og:url" content="https://proxima.vinodjangid.site/" />
     <meta property="og:title" content="Proxima | Local-First Workspace" />
-    <meta property="og:description" content="Write at the speed of thought. Never lose an idea. A quiet, local-first workspace that works 100% offline, stores in open Markdown, and syncs seamlessly." />
+    <meta property="og:description" content="Write at the speed of thought. Never lose an idea. A quiet, local-first workspace that works 100% offline, stores in open Markdown, and syncs across devices." />
     <meta property="og:image" content="https://proxima.vinodjangid.site/og-image.jpg" />
     <meta property="og:image:secure_url" content="https://proxima.vinodjangid.site/og-image.jpg" />
     <meta property="og:image:type" content="image/jpeg" />
@@ -39,10 +66,10 @@
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://proxima.vinodjangid.site/" />
-    <meta name="twitter:title" content="Proxima — Local-First Workspace" />
-    <meta name="twitter:description" content="Write at the speed of thought. Never lose an idea. A quiet, local-first workspace that works 100% offline, stores in open Markdown, and syncs seamlessly." />
+    <meta name="twitter:title" content="Proxima | Local-First Workspace" />
+    <meta name="twitter:description" content="Write at the speed of thought. Never lose an idea. A quiet, local-first workspace that works 100% offline, stores in open Markdown, and syncs across devices." />
     <meta name="twitter:image" content="https://proxima.vinodjangid.site/og-image.jpg" />
-    <meta name="twitter:image:alt" content="Proxima — Local-First Workspace Preview" />
+    <meta name="twitter:image:alt" content="Proxima | Local-First Workspace Preview" />
 
     <!-- Structured Data (JSON-LD) -->
     <script type="application/ld+json">
@@ -68,20 +95,6 @@
           "priceCurrency": "USD"
         }
       }
-    </script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <script>
-      try {
-        let theme = localStorage.getItem('theme');
-        if (theme === 'dark' || (theme !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches) || !theme) {
-          document.documentElement.classList.add('dark');
-        } else {
-          document.documentElement.classList.remove('dark');
-        }
-      } catch (_) {}
     </script>
   </head>
   <body>

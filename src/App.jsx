@@ -1,36 +1,53 @@
+import { lazy, Suspense } from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "next-themes";
-import Home from "./routes/Home";
-import Notes from "./routes/Notes";
-import Profile from "./routes/Profile";
-import Privacy from "./routes/Privacy";
-import Terms from "./routes/Terms";
-import Login from "./routes/auth/Login";
-import Signup from "./routes/auth/Signup";
-import SidebarLayout from "./components/Notes/SidebarLayout";
 import { AuthProvider } from "./context/AuthContext";
-import ThemedToastContainer from "./components/common/ThemedToastContainer";
-import "react-toastify/dist/ReactToastify.css";
+import Home from "./routes/Home";
 import "./App.css";
+
+const Notes = lazy(() => import("./routes/Notes"));
+const Profile = lazy(() => import("./routes/Profile"));
+const Privacy = lazy(() => import("./routes/Privacy"));
+const Terms = lazy(() => import("./routes/Terms"));
+const Login = lazy(() => import("./routes/auth/Login"));
+const Signup = lazy(() => import("./routes/auth/Signup"));
+const NotFound = lazy(() => import("./routes/NotFound"));
+const SidebarLayout = lazy(() => import("./components/Notes/SidebarLayout"));
+const ToastContainer = lazy(() =>
+  import("react-toastify/dist/ReactToastify.css").then(() =>
+    import("./components/common/ThemedToastContainer")
+  )
+);
+
+function RouteFallback() {
+  return (
+    <div className="min-h-screen bg-[#faf9f6] dark:bg-[#09090b] flex items-center justify-center" />
+  );
+}
 
 function App() {
   return (
     <ThemeProvider attribute="class" defaultTheme="dark">
       <AuthProvider>
         <Router>
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-            <Route element={<SidebarLayout />}>
-              <Route path="/notes" element={<Notes />} />
-              <Route path="/profile" element={<Profile />} />
-            </Route>
-          </Routes>
+          <Suspense fallback={<RouteFallback />}>
+            <Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<Signup />} />
+              <Route path="/privacy" element={<Privacy />} />
+              <Route path="/terms" element={<Terms />} />
+              <Route element={<SidebarLayout />}>
+                <Route path="/notes" element={<Notes />} />
+                <Route path="/profile" element={<Profile />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </Router>
-        <ThemedToastContainer />
+        <Suspense fallback={null}>
+          <ToastContainer />
+        </Suspense>
       </AuthProvider>
     </ThemeProvider>
   );

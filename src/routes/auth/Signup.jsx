@@ -31,7 +31,7 @@ const Signup = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
-        document.title = "Sign Up — Proxima";
+        document.title = "Sign Up | Proxima";
         if (!loading && currentUser) {
             navigate('/notes');
         }
@@ -85,17 +85,22 @@ const Signup = () => {
 
     return (
         <div className="min-h-screen bg-white dark:bg-[#0e0e11] text-[#171717] dark:text-[#ededed] transition-colors duration-200 flex flex-col md:flex-row w-full h-screen overflow-hidden relative font-sans">
+            <a href="#main" className="skip-link">
+                Skip to content
+            </a>
             <BackHomeButton />
 
             <div className="hidden md:block md:w-1/2 h-screen relative overflow-hidden bg-[#171717]">
                 <img 
                   src="/proxima_centauri.webp" 
-                  alt="Proxima Centauri Space Visual" 
+                  alt="Proxima Centauri starfield background" 
+                  width="940"
+                  height="940"
                   className="w-full h-full object-cover select-none pointer-events-none opacity-85" 
                 />
             </div>
 
-            <main className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
+            <main id="main" tabIndex={-1} className="w-full md:w-1/2 h-screen overflow-y-auto flex items-center justify-center px-6 py-12">
                 <div className="max-w-sm w-full flex flex-col gap-7">
                     <div className="flex flex-col gap-1.5 select-none">
                         <h1 className="text-3xl font-semibold tracking-tight text-[#171717] dark:text-[#ededed]">Create your account</h1>
@@ -106,7 +111,7 @@ const Signup = () => {
                         <AuthInput
                             label="Full Name"
                             name="name"
-                            placeholder="John Doe"
+                            placeholder="Alex Rivera"
                         />
 
                         <AuthInput

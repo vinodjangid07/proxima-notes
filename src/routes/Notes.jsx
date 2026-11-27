@@ -61,7 +61,7 @@ const Notes = () => {
     const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
 
     useEffect(() => {
-        document.title = "Workspace — Proxima Notes";
+        document.title = "Workspace | Proxima Notes";
     }, []);
 
     const searchInputRef = useRef(null);
