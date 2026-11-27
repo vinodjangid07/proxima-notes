@@ -148,7 +148,7 @@ async function launchBrowser() {
         // try next channel
       }
     }
-    throw new Error("No Chromium binary found for prerendering.");
+    return null;
   }
 }
 
@@ -200,12 +200,41 @@ function replaceMeta(html, routeSpec) {
     );
 }
 
+function syncServiceWorker() {
+  const swPath = path.join(DIST_DIR, "sw.js");
+  if (fs.existsSync(swPath)) {
+    const indexBytes = fs.readFileSync(path.join(DIST_DIR, "index.html"));
+    const md5 = crypto.createHash("md5").update(indexBytes).digest("hex");
+    const swCode = fs.readFileSync(swPath, "utf8");
+    const updatedSw = swCode.replace(
+      /(\{url:"index\.html",revision:")[^"]+("\})/,
+      `$1${md5}$2`
+    );
+    fs.writeFileSync(swPath, updatedSw, "utf8");
+    console.log(`updated sw.js index.html revision -> ${md5}`);
+  }
+}
+
 async function run() {
   const baseTemplate = fs.readFileSync(path.join(DIST_DIR, "index.html"), "utf8");
+  const browser = await launchBrowser();
+
+  if (!browser) {
+    console.log("No Chromium binary found in CI. Generating static route shells with full metadata.");
+    for (const spec of ROUTES) {
+      const outHtml = replaceMeta(baseTemplate, spec);
+      const dest = path.join(DIST_DIR, spec.outFile);
+      fs.mkdirSync(path.dirname(dest), { recursive: true });
+      fs.writeFileSync(dest, outHtml, "utf8");
+      console.log(`generated route ${spec.route} -> dist/${spec.outFile.replace(/\\/g, "/")}`);
+    }
+    syncServiceWorker();
+    return;
+  }
+
   const server = await startStaticSpaServer(DIST_DIR);
   const port = server.address().port;
   const origin = `http://127.0.0.1:${port}`;
-  const browser = await launchBrowser();
 
   try {
     const context = await browser.newContext({
@@ -247,20 +276,7 @@ async function run() {
     }
 
     await context.close();
-
-    // Keep Workbox precache revision synced for the updated dist/index.html
-    const swPath = path.join(DIST_DIR, "sw.js");
-    if (fs.existsSync(swPath)) {
-      const indexBytes = fs.readFileSync(path.join(DIST_DIR, "index.html"));
-      const md5 = crypto.createHash("md5").update(indexBytes).digest("hex");
-      const swCode = fs.readFileSync(swPath, "utf8");
-      const updatedSw = swCode.replace(
-        /(\{url:"index\.html",revision:")[^"]+("\})/,
-        `$1${md5}$2`
-      );
-      fs.writeFileSync(swPath, updatedSw, "utf8");
-      console.log(`updated sw.js index.html revision -> ${md5}`);
-    }
+    syncServiceWorker();
   } finally {
     await browser.close();
     server.closeAllConnections();
